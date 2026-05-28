@@ -94,9 +94,9 @@ body {
   display: none !important;
 }
 
-/* Hide the custom monochrome hero section */
+/* Show the custom monochrome hero section */
 #pf-hero {
-  display: none !important;
+  /* display: block naturally */
 }
 
 #portfolio-root { 
@@ -468,7 +468,7 @@ const bodyInject = `<!-- PORTFOLIO_INJECT_BODY_START -->
 
   <!-- ═══ HERO ═══ -->
   <section id="pf-hero" class="pf-section" style="text-align:center; padding-top:140px; padding-bottom:60px;">
-    <div class="pf-label" style="justify-content:center;">
+    <div class="pf-label">
       <span id="pf-subtitle"></span>
     </div>
     <h1 id="pf-name" class="font-outfit" style="font-size:clamp(3rem,8vw,6rem); font-weight:900; line-height:0.95; margin:0; letter-spacing:-0.03em;"></h1>
