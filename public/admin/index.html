@@ -332,7 +332,19 @@
           }, 50);
         }, 300);
         
-        populateAdminInputs();
+        // Fetch fresh settings from Supabase to populate inputs up-to-date
+        fetch('/.netlify/functions/get-settings')
+          .then(r => r.json())
+          .then(data => {
+            if (data) {
+              localStorage.setItem('portfolio_settings', JSON.stringify(data));
+            }
+            populateAdminInputs();
+          })
+          .catch(err => {
+            console.warn("Could not retrieve Supabase data on passcode validation, using local settings:", err);
+            populateAdminInputs();
+          });
       } else {
         lockError.style.opacity = '1';
         passcodeField.value = '';
