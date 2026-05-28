@@ -194,6 +194,10 @@
             <label class="text-[10px] font-bold uppercase tracking-wider opacity-65 text-neutral-400">LinkedIn Profile Link</label>
             <input type="url" id="cfg-linkedin" class="w-full px-4 py-3.5 rounded-lg bg-neutral-955 border border-neutral-800 text-white text-xs outline-none focus:border-white transition-colors" />
           </div>
+          <div class="flex flex-col gap-2">
+            <label class="text-[10px] font-bold uppercase tracking-wider opacity-65 text-neutral-400">Resume / CV Download URL <span class="text-neutral-500 normal-case font-normal">(used by terminal <code class="text-cyan-400">resume</code> command)</span></label>
+            <input type="url" id="cfg-resume-url" placeholder="https://drive.google.com/..." class="w-full px-4 py-3.5 rounded-lg bg-neutral-955 border border-neutral-800 text-white text-xs outline-none focus:border-white transition-colors" />
+          </div>
         </div>
 
         <!-- Tab 5: Experience Timeline Settings -->
@@ -240,6 +244,7 @@
       email: "iamudt19@gmail.com",
       github: "https://github.com/Iamudt19",
       linkedin: "https://linkedin.com",
+      resumeUrl: "",
       projects: [
         {
           prefix: "/01 · EDITOR TOOLBOX",
@@ -559,6 +564,7 @@
       document.getElementById('cfg-email').value = data.email || defaultSettings.email;
       document.getElementById('cfg-github').value = data.github || defaultSettings.github;
       document.getElementById('cfg-linkedin').value = data.linkedin || defaultSettings.linkedin;
+      document.getElementById('cfg-resume-url').value = data.resumeUrl || defaultSettings.resumeUrl || '';
 
       // Render Projects
       const projContainer = document.getElementById('admin-projects-list-container');
@@ -603,6 +609,7 @@
         email: document.getElementById('cfg-email').value.trim() || defaultSettings.email,
         github: document.getElementById('cfg-github').value.trim() || defaultSettings.github,
         linkedin: document.getElementById('cfg-linkedin').value.trim() || defaultSettings.linkedin,
+        resumeUrl: document.getElementById('cfg-resume-url').value.trim() || '',
         projects: getProjectsFromUI(),
         timeline: getTimelineFromUI()
       };
@@ -672,6 +679,7 @@
         email: document.getElementById('cfg-email').value.trim() || defaultSettings.email,
         github: document.getElementById('cfg-github').value.trim() || defaultSettings.github,
         linkedin: document.getElementById('cfg-linkedin').value.trim() || defaultSettings.linkedin,
+        resumeUrl: document.getElementById('cfg-resume-url').value.trim() || '',
         projects: getProjectsFromUI(),
         timeline: getTimelineFromUI()
       };

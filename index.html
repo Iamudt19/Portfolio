@@ -639,6 +639,7 @@ body {
     email: "iamudt19@gmail.com",
     github: "https://github.com/Iamudt19",
     linkedin: "https://linkedin.com",
+    resumeUrl: "",
     projects: [
       {prefix:"/01 · EDITOR TOOLBOX",title:"Chaptr",desc:"A premium collaborative markdown editor and screenplay outline sandbox facilitating structured creative drafts without distractions.",tags:"React, Next.js, Slate.js, Tailwind",img:"",codeLink:"https://github.com/Iamudt19/Chaptr",demoLink:"https://github.com/Iamudt19/Chaptr"},
       {prefix:"/02 · AGENT ORCHESTRATION",title:"Antigravity AI",desc:"An agentic workspace visualization dashboard orchestrating background nodes, running parallel sandboxed developer tasks, and tracking multi-agent pipelines.",tags:"Node.js, WebSockets, Tailwind, Docker",img:"",codeLink:"",demoLink:""},
@@ -838,7 +839,14 @@ body {
         pr(c('  ' + (d.name||DEF.name), 't-green t-bold') + c(' — ', 't-dim') + c(d.title||DEF.title, 't-cyan'));
       },
       resume: function(){
-        pr(c('  ⚠ ', 't-yellow') + c('Resume URL not configured. Set it in the ', 't-dim') + c('admin panel', 't-cyan') + c('.', 't-dim'));
+        var s = localStorage.getItem('portfolio_settings');
+        var resumeUrl = s ? (JSON.parse(s).resumeUrl || '') : '';
+        if (resumeUrl) {
+          pr(c('  ↗ ', 't-green') + c('Opening resume...', 't-white'));
+          window.open(resumeUrl, '_blank');
+        } else {
+          pr(c('  ⚠ ', 't-yellow') + c('Resume URL not configured. Go to ', 't-dim') + c('/admin', 't-cyan') + c(' → Social tab → paste your CV link.', 't-dim'));
+        }
       },
       theme: function(){
         var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
