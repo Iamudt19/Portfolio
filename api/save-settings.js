@@ -1,4 +1,5 @@
-const { Client } = require('pg');
+import pg from 'pg';
+const { Client } = pg;
 
 const DB_URL = "postgresql://postgres:udit9123119694@db.wxmgfmzthzqktkxwmnyw.supabase.co:5432/postgres";
 
@@ -41,7 +42,7 @@ function parseConnectionString(str) {
   };
 }
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   // CORS Headers
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -100,4 +101,4 @@ module.exports = async (req, res) => {
   } finally {
     await client.end();
   }
-};
+}
