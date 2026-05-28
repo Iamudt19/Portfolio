@@ -2,6 +2,45 @@ const { Client } = require('pg');
 
 const DB_URL = process.env.DATABASE_URL || "postgresql://postgres:Udit%401905200@db.ssqtwwicmnnyrqvghwuc.supabase.co:5432/postgres";
 
+function parseConnectionString(str) {
+  if (!str) return null;
+  let s = str;
+  if (s.startsWith("postgresql://")) s = s.substring(13);
+  else if (s.startsWith("postgres://")) s = s.substring(11);
+  
+  const slashIdx = s.lastIndexOf('/');
+  let database = "postgres";
+  if (slashIdx !== -1) {
+    database = s.substring(slashIdx + 1);
+    s = s.substring(0, slashIdx);
+  }
+  
+  const atIdx = s.lastIndexOf('@');
+  if (atIdx === -1) return { connectionString: str };
+  
+  const auth = s.substring(0, atIdx);
+  const hostPort = s.substring(atIdx + 1);
+  
+  const colonIdx = auth.indexOf(':');
+  const user = colonIdx !== -1 ? auth.substring(0, colonIdx) : auth;
+  let password = colonIdx !== -1 ? auth.substring(colonIdx + 1) : "";
+  try {
+    password = decodeURIComponent(password);
+  } catch(e) {}
+  
+  const hpColonIdx = hostPort.indexOf(':');
+  const host = hpColonIdx !== -1 ? hostPort.substring(0, hpColonIdx) : hostPort;
+  const port = hpColonIdx !== -1 ? parseInt(hostPort.substring(hpColonIdx + 1), 10) : 5432;
+  
+  return {
+    user,
+    password,
+    host,
+    port,
+    database
+  };
+}
+
 exports.handler = async (event, context) => {
   // Allow GET requests
   if (event.httpMethod !== "GET") {
@@ -12,8 +51,9 @@ exports.handler = async (event, context) => {
     };
   }
 
+  const clientParams = parseConnectionString(DB_URL);
   const client = new Client({
-    connectionString: DB_URL,
+    ...clientParams,
     ssl: { rejectUnauthorized: false } // Required for Supabase external connections
   });
 
