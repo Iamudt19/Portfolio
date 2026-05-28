@@ -19,6 +19,16 @@ html = html.replace(/<!-- PORTFOLIO_INJECT_BODY_START -->[\s\S]*?<!-- PORTFOLIO_
 // HEAD INJECTION
 // ═══════════════════════════════════════════════════════════════════════
 const headInject = `<!-- PORTFOLIO_INJECT_HEAD_START -->
+<script>
+  (function(){
+    var saved = localStorage.getItem('portfolio_theme');
+    if(saved === 'dark'){
+      document.documentElement.setAttribute('data-theme','dark');
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+    }
+  })();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -28,35 +38,6 @@ const headInject = `<!-- PORTFOLIO_INJECT_HEAD_START -->
    ══════════════════════════════════════════════════════════════ */
 
 :root {
-  --bg-primary: #000000;
-  --bg-primary-rgb: 0, 0, 0;
-  --bg-secondary: #0a0a0a;
-  --bg-card: #111111;
-  --bg-card-hover: #161616;
-  --bg-input: #0d0d0d;
-  --text-primary: #ffffff;
-  --text-secondary: #a0a0a0;
-  --text-muted: #666666;
-  --border: #1a1a1a;
-  --border-hover: #333333;
-  --accent: #ffffff;
-  --accent-dim: #888888;
-  --terminal-bg: #050505;
-  --terminal-prompt: #ffffff;
-  --terminal-text: #cccccc;
-  --terminal-accent: #ffffff;
-  --term-green: #00ff88;
-  --term-cyan: #00e5ff;
-  --term-yellow: #ffd600;
-  --term-red: #ff4057;
-  --term-magenta: #e040fb;
-  --term-blue: #448aff;
-  --term-orange: #ff9100;
-  --term-dim: #555555;
-  --term-white: #ffffff;
-}
-
-[data-theme="light"] {
   --bg-primary: #ffffff;
   --bg-primary-rgb: 255, 255, 255;
   --bg-secondary: #f5f5f5;
@@ -71,6 +52,35 @@ const headInject = `<!-- PORTFOLIO_INJECT_HEAD_START -->
   --accent: #000000;
   --accent-dim: #666666;
   --terminal-bg: #0a0a0a;
+  --terminal-prompt: #ffffff;
+  --terminal-text: #cccccc;
+  --terminal-accent: #ffffff;
+  --term-green: #00ff88;
+  --term-cyan: #00e5ff;
+  --term-yellow: #ffd600;
+  --term-red: #ff4057;
+  --term-magenta: #e040fb;
+  --term-blue: #448aff;
+  --term-orange: #ff9100;
+  --term-dim: #555555;
+  --term-white: #ffffff;
+}
+
+[data-theme="dark"] {
+  --bg-primary: #000000;
+  --bg-primary-rgb: 0, 0, 0;
+  --bg-secondary: #0a0a0a;
+  --bg-card: #111111;
+  --bg-card-hover: #161616;
+  --bg-input: #0d0d0d;
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  --text-muted: #666666;
+  --border: #1a1a1a;
+  --border-hover: #333333;
+  --accent: #ffffff;
+  --accent-dim: #888888;
+  --terminal-bg: #050505;
   --terminal-prompt: #ffffff;
   --terminal-text: #cccccc;
   --terminal-accent: #ffffff;
@@ -696,8 +706,8 @@ const bodyInject = `<!-- PORTFOLIO_INJECT_BODY_START -->
   /* ═══ THEME ═══ */
   function initTheme(){
     var saved = localStorage.getItem('portfolio_theme');
-    if(saved === 'light'){
-      document.documentElement.setAttribute('data-theme','light');
+    if(saved === 'dark'){
+      document.documentElement.setAttribute('data-theme','dark');
     } else {
       document.documentElement.removeAttribute('data-theme');
     }
@@ -792,15 +802,15 @@ const bodyInject = `<!-- PORTFOLIO_INJECT_BODY_START -->
         pr(c('  ⚠ ', 't-yellow') + c('Resume URL not configured. Set it in the ', 't-dim') + c('admin panel', 't-cyan') + c('.', 't-dim'));
       },
       theme: function(){
-        var isLight = document.documentElement.getAttribute('data-theme') === 'light';
-        if(isLight){
+        var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        if(isDark){
           document.documentElement.removeAttribute('data-theme');
-          localStorage.setItem('portfolio_theme','dark');
-          pr(c('  ✓ ', 't-green') + c('Switched to ', 't-white') + c('dark mode', 't-cyan'));
-        } else {
-          document.documentElement.setAttribute('data-theme','light');
           localStorage.setItem('portfolio_theme','light');
           pr(c('  ✓ ', 't-green') + c('Switched to ', 't-white') + c('light mode', 't-cyan'));
+        } else {
+          document.documentElement.setAttribute('data-theme','dark');
+          localStorage.setItem('portfolio_theme','dark');
+          pr(c('  ✓ ', 't-green') + c('Switched to ', 't-white') + c('dark mode', 't-cyan'));
         }
       },
       matrix: function(){
