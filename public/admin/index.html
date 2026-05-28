@@ -334,7 +334,13 @@
         
         // Fetch fresh settings from Supabase to populate inputs up-to-date
         fetch('/.netlify/functions/get-settings')
-          .then(r => r.json())
+          .then(async r => {
+            if (!r.ok) {
+              const text = await r.text();
+              throw new Error(`Server returned status ${r.status}: ${text}`);
+            }
+            return r.json();
+          })
           .then(data => {
             if (data) {
               localStorage.setItem('portfolio_settings', JSON.stringify(data));
@@ -342,7 +348,7 @@
             populateAdminInputs();
           })
           .catch(err => {
-            console.warn("Could not retrieve Supabase data on passcode validation, using local settings:", err);
+            console.error("Could not retrieve Supabase data on passcode validation:", err);
             populateAdminInputs();
           });
       } else {
@@ -595,16 +601,22 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updated)
       })
-      .then(r => r.json())
+      .then(async r => {
+        if (!r.ok) {
+          const text = await r.text();
+          throw new Error(`Server returned status ${r.status}: ${text}`);
+        }
+        return r.json();
+      })
       .then(data => {
-        if (data.success) {
+        if (data && data.success) {
           toast.innerHTML = '<span class="text-base">✓</span> Sync completed! Saved globally to Supabase.';
         } else {
           toast.innerHTML = '<span class="text-base">✓</span> Saved locally (Supabase offline).';
         }
       })
       .catch(err => {
-        console.warn("Supabase save fallback:", err);
+        console.error("Supabase save error details:", err);
         toast.innerHTML = '<span class="text-base">✓</span> Saved locally (Development offline).';
       })
       .finally(() => {
