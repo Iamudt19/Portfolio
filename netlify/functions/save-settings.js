@@ -1,6 +1,6 @@
 const { Client } = require('pg');
 
-const DB_URL = process.env.DATABASE_URL || "postgresql://postgres:udit9123119694@db.wxmgfmzthzqktkxwmnyw.supabase.co:5432/postgres";
+const DB_URL = "postgresql://postgres:udit9123119694@db.wxmgfmzthzqktkxwmnyw.supabase.co:5432/postgres";
 
 function parseConnectionString(str) {
   if (!str) return null;
