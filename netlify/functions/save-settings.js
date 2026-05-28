@@ -43,22 +43,21 @@ exports.handler = async (event, context) => {
   try {
     await client.connect();
 
-    // 1. Ensure the table exists
+    // 1. Ensure the table exists with the exact active schema
     await client.query(`
       CREATE TABLE IF NOT EXISTS portfolio_settings (
-        id SERIAL PRIMARY KEY,
-        key VARCHAR(50) UNIQUE DEFAULT 'current',
-        data JSONB NOT NULL,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        id VARCHAR(50) PRIMARY KEY,
+        settings JSONB NOT NULL,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
     `);
 
-    // 2. Perform UPSERT (Insert or Update if key exists)
+    // 2. Perform UPSERT (Insert or Update if id exists)
     await client.query(`
-      INSERT INTO portfolio_settings (key, data, updated_at)
-      VALUES ('current', $1, CURRENT_TIMESTAMP)
-      ON CONFLICT (key)
-      DO UPDATE SET data = EXCLUDED.data, updated_at = CURRENT_TIMESTAMP;
+      INSERT INTO portfolio_settings (id, settings, updated_at)
+      VALUES ('main', $1, CURRENT_TIMESTAMP)
+      ON CONFLICT (id)
+      DO UPDATE SET settings = EXCLUDED.settings, updated_at = CURRENT_TIMESTAMP;
     `, [payload]);
 
     return {

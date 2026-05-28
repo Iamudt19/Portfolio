@@ -20,19 +20,18 @@ exports.handler = async (event, context) => {
   try {
     await client.connect();
 
-    // 1. Ensure the table exists
+    // 1. Ensure the table exists with the exact active schema
     await client.query(`
       CREATE TABLE IF NOT EXISTS portfolio_settings (
-        id SERIAL PRIMARY KEY,
-        key VARCHAR(50) UNIQUE DEFAULT 'current',
-        data JSONB NOT NULL,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        id VARCHAR(50) PRIMARY KEY,
+        settings JSONB NOT NULL,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
     `);
 
-    // 2. Query the current settings
+    // 2. Query the current settings for 'main' key
     const res = await client.query(
-      "SELECT data FROM portfolio_settings WHERE key = 'current' LIMIT 1"
+      "SELECT settings FROM portfolio_settings WHERE id = 'main' LIMIT 1"
     );
 
     if (res.rows.length === 0) {
@@ -52,7 +51,7 @@ exports.handler = async (event, context) => {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*"
       },
-      body: JSON.stringify(res.rows[0].data)
+      body: JSON.stringify(res.rows[0].settings)
     };
 
   } catch (err) {
