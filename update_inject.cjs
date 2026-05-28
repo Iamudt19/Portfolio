@@ -25,7 +25,7 @@ content = content.replace(/<section id="timeline"[\s\S]*?<\/section>/, newTimeli
 
 // 3. Update defaultSettings
 const newDefaultSettings = `const defaultSettings = {
-      name: "UDIT PRATAP",
+      name: "Udit",
       title: "Creative Technologist / UI & IoT Engineer",
       pitch: "Developing high-fidelity interactive architectures, custom canvas WebGL simulations, and robust embedded IoT networks where low-level engineering meets visual high art.",
       bio1: "My engineering philosophy bridges two worlds: visual design excellence and low-level hardware-software performance. I thrive on bringing complex visual animations to life with spring physics and fluid math, and building responsive, low-latency applications that respond instantly to touch, gesture, and telemetry streams.",

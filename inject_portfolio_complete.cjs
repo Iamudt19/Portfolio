@@ -580,7 +580,7 @@ const bodyInject = `<!-- PORTFOLIO_INJECT_BODY_START -->
 
   /* ═══ DEFAULTS (mirrors admin/index.html) ═══ */
   var DEF = {
-    name: "UDIT PRATAP",
+    name: "Udit",
     title: "Creative Technologist / UI & IoT Engineer",
     heroBgText: "WEBGL SIMULATION // EMBEDDED IOT NETWORKS // CREATIVE TECHNOLOGIST // INTERACTIVE ARCHITECTURES",
     pitch: "Developing high-fidelity interactive architectures, custom canvas WebGL simulations, and robust embedded IoT networks where low-level engineering meets visual high art.",
@@ -604,7 +604,17 @@ const bodyInject = `<!-- PORTFOLIO_INJECT_BODY_START -->
   };
 
   function load() {
-    try { var r = localStorage.getItem('portfolio_settings'); if(r) return JSON.parse(r); } catch(e){}
+    try {
+      var r = localStorage.getItem('portfolio_settings');
+      if(r) {
+        var parsed = JSON.parse(r);
+        if (parsed && (parsed.name === "UDIT PRATAP" || !parsed.name)) {
+          parsed.name = "Udit";
+          localStorage.setItem('portfolio_settings', JSON.stringify(parsed));
+        }
+        return parsed;
+      }
+    } catch(e){}
     return DEF;
   }
 
