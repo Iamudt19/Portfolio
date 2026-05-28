@@ -939,6 +939,31 @@ const bodyInject = `<!-- PORTFOLIO_INJECT_BODY_START -->
     }
   }
 
+  function apiFetch(endpoint, options) {
+    return fetch('/api/' + endpoint, options)
+      .then(async function(r) {
+        if (!r.ok) {
+          if (r.status === 404) throw new Error("404");
+          var text = await r.text();
+          throw new Error("Server returned status " + r.status + ": " + text);
+        }
+        return r.json();
+      })
+      .catch(function(err) {
+        if (err.message === "404" || err instanceof TypeError) {
+          return fetch('/.netlify/functions/' + endpoint, options)
+            .then(async function(r2) {
+              if (!r2.ok) {
+                var text2 = await r2.text();
+                throw new Error("Server returned status " + r2.status + ": " + text2);
+              }
+              return r2.json();
+            });
+        }
+        throw err;
+      });
+  }
+
   /* ═══ INIT ═══ */
   document.addEventListener('DOMContentLoaded', function(){
     render();
@@ -947,9 +972,8 @@ const bodyInject = `<!-- PORTFOLIO_INJECT_BODY_START -->
     initSmoothScroll();
     initHeroBgText();
 
-    // Asynchronously fetch fresh settings from Supabase database via Netlify Function
-    fetch('/.netlify/functions/get-settings')
-      .then(function(r) { return r.json(); })
+    // Asynchronously fetch fresh settings from Supabase database globally
+    apiFetch('get-settings')
       .then(function(data) {
         if (data) {
           // Sync to localStorage for local fast cache on next load

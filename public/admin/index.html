@@ -333,14 +333,7 @@
         }, 300);
         
         // Fetch fresh settings from Supabase to populate inputs up-to-date
-        fetch('/.netlify/functions/get-settings')
-          .then(async r => {
-            if (!r.ok) {
-              const text = await r.text();
-              throw new Error(`Server returned status ${r.status}: ${text}`);
-            }
-            return r.json();
-          })
+        apiFetch('get-settings')
           .then(data => {
             if (data) {
               localStorage.setItem('portfolio_settings', JSON.stringify(data));
@@ -520,7 +513,30 @@
         }
       });
       return timeline;
-    }
+  function apiFetch(endpoint, options) {
+    return fetch('/api/' + endpoint, options)
+      .then(async r => {
+        if (!r.ok) {
+          if (r.status === 404) throw new Error("404");
+          const text = await r.text();
+          throw new Error(`Server returned status ${r.status}: ${text}`);
+        }
+        return r.json();
+      })
+      .catch(err => {
+        if (err.message === "404" || err instanceof TypeError) {
+          return fetch('/.netlify/functions/' + endpoint, options)
+            .then(async r2 => {
+              if (!r2.ok) {
+                const text2 = await r2.text();
+                throw new Error(`Server returned status ${r2.status}: ${text2}`);
+              }
+              return r2.json();
+            });
+        }
+        throw err;
+      });
+  }
 
     function populateAdminInputs() {
       const saved = localStorage.getItem('portfolio_settings');
@@ -596,17 +612,10 @@
       toast.classList.add('show');
 
       // Attempt DB synchronization
-      fetch('/.netlify/functions/save-settings', {
+      apiFetch('save-settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updated)
-      })
-      .then(async r => {
-        if (!r.ok) {
-          const text = await r.text();
-          throw new Error(`Server returned status ${r.status}: ${text}`);
-        }
-        return r.json();
       })
       .then(data => {
         if (data && data.success) {
