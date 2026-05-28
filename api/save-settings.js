@@ -79,7 +79,12 @@ module.exports = async (req, res) => {
     `);
 
     // 2. Perform UPSERT
-    const payload = req.body;
+    let payload = req.body;
+    if (typeof payload === 'string') {
+      try {
+        payload = JSON.parse(payload);
+      } catch (e) {}
+    }
     await client.query(`
       INSERT INTO portfolio_settings (id, settings, updated_at)
       VALUES ('main', $1, CURRENT_TIMESTAMP)
