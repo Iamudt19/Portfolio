@@ -574,11 +574,33 @@
       localStorage.setItem('portfolio_settings', JSON.stringify(updated));
       
       const toast = document.getElementById('toast-notification');
+      toast.innerHTML = '<span class="text-base">⏳</span> Saving customizations and syncing globally...';
       toast.classList.add('show');
-      setTimeout(() => {
-        toast.classList.remove('show');
-        window.location.href = "/";
-      }, 2000);
+
+      // Attempt DB synchronization
+      fetch('/.netlify/functions/save-settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updated)
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          toast.innerHTML = '<span class="text-base">✓</span> Sync completed! Saved globally to Supabase.';
+        } else {
+          toast.innerHTML = '<span class="text-base">✓</span> Saved locally (Supabase offline).';
+        }
+      })
+      .catch(err => {
+        console.warn("Supabase save fallback:", err);
+        toast.innerHTML = '<span class="text-base">✓</span> Saved locally (Development offline).';
+      })
+      .finally(() => {
+        setTimeout(() => {
+          toast.classList.remove('show');
+          window.location.href = "/";
+        }, 2000);
+      });
     }
 
     function discardChanges() {

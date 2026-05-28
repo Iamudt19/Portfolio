@@ -936,6 +936,22 @@ const bodyInject = `<!-- PORTFOLIO_INJECT_BODY_START -->
     initTerminal();
     initSmoothScroll();
     initHeroBgText();
+
+    // Asynchronously fetch fresh settings from Supabase database via Netlify Function
+    fetch('/.netlify/functions/get-settings')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data) {
+          // Sync to localStorage for local fast cache on next load
+          localStorage.setItem('portfolio_settings', JSON.stringify(data));
+          // Re-render and update background text with fresh global data
+          render();
+          initHeroBgText();
+        }
+      })
+      .catch(function(err) {
+        console.log("Supabase db sync loaded from local storage cache.");
+      });
   });
 })();
 </script>
