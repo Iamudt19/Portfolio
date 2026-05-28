@@ -439,7 +439,7 @@ body {
   color: var(--text-primary);
   opacity: 0.08;
   letter-spacing: 0.05em;
-  animation: hero-bg-loop 45s linear infinite;
+  animation: hero-bg-loop var(--hero-bg-speed, 45s) linear infinite;
   white-space: nowrap;
   line-height: 1;
   user-select: none;
@@ -948,6 +948,9 @@ body {
   function initHeroBgText(){
     var d = load();
     var text = (d.heroBgText || DEF.heroBgText).toUpperCase();
+    /* Apply speed from settings — default 45s */
+    var speed = parseInt(d.heroBgSpeed || DEF.heroBgSpeed || 45, 10);
+    document.documentElement.style.setProperty('--hero-bg-speed', speed + 's');
     /* Repeat text 4x so the 50% translate loops are seamless at any viewport */
     var repeatedText = text + '   ·   ' + text + '   ·   ' + text + '   ·   ' + text + '   ·   ';
 
