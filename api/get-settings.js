@@ -1,130 +1,62 @@
 /**
  * api/get-settings.js
- * 
- * WHY ES MODULES ARE REQUIRED:
- * The project's package.json defines `"type": "module"`. This tells Node.js and the Vercel 
- * serverless runtime environment to treat all .js files as native ES Modules.
- * CommonJS syntax (like require() or module.exports) will throw a fatal runtime 
- * "ReferenceError: require is not defined in ES module scope" inside Vercel. 
- * Therefore, modern "import" and "export default async function" syntax are strictly required.
- * 
- * HOW THE SUPABASE CONNECTION WORKS:
- * We connect to Supabase PostgreSQL using the 'pg' library. Since connection strings 
- * can contain special characters (like '@') inside the password, raw URI connection 
- * strings can be parsed incorrectly by postgres drivers (resulting in host resolution failures).
- * To ensure absolute bulletproof connection security, the parseConnectionString() 
- * utility extracts user, password, host, port, and database segments cleanly and 
- * constructs a secure Client configuration with SSL enabled (rejectUnauthorized: false),
- * which is a requirement for Supabase's cloud-scale database cluster.
- * 
- * GLOBAL RETRIEVAL:
- * Supabase is the single source of truth. The database table 'portfolio_settings' 
- * maintains all portfolio fields. This function ensures the table is active and queries
- * the record where id = 'main' to serve the live global settings JSON instantly.
+ *
+ * IMPORTANT: Uses Supabase REST API over HTTPS (port 443).
+ * Vercel serverless functions block outbound TCP on port 5432 (PostgreSQL),
+ * so direct `pg` connections will always fail with ENOTFOUND / ECONNREFUSED.
+ * The Supabase REST API (PostgREST) runs on standard HTTPS port 443, which
+ * Vercel fully supports.
  */
 
-import pg from 'pg';
-const { Client } = pg;
-
-// Securely read from Vercel Environment Variables, with seeded fallback
-const DB_URL = process.env.DATABASE_URL || "postgresql://postgres:udit9123119694@db.wxmgfmzthzqktkxwmnyw.supabase.co:5432/postgres";
-
-/**
- * Parses Postgres URI connection string safely, supporting passwords with special characters.
- */
-function parseConnectionString(str) {
-  if (!str) return null;
-  let s = str;
-  if (s.startsWith("postgresql://")) s = s.substring(13);
-  else if (s.startsWith("postgres://")) s = s.substring(11);
-  
-  const slashIdx = s.lastIndexOf('/');
-  let database = "postgres";
-  if (slashIdx !== -1) {
-    database = s.substring(slashIdx + 1);
-    s = s.substring(0, slashIdx);
-  }
-  
-  const atIdx = s.lastIndexOf('@');
-  if (atIdx === -1) return { connectionString: str };
-  
-  const auth = s.substring(0, atIdx);
-  const hostPort = s.substring(atIdx + 1);
-  
-  const colonIdx = auth.indexOf(':');
-  const user = colonIdx !== -1 ? auth.substring(0, colonIdx) : auth;
-  let password = colonIdx !== -1 ? auth.substring(colonIdx + 1) : "";
-  try {
-    password = decodeURIComponent(password);
-  } catch(e) {}
-  
-  const hpColonIdx = hostPort.indexOf(':');
-  const host = hpColonIdx !== -1 ? hostPort.substring(0, hpColonIdx) : hostPort;
-  const port = hpColonIdx !== -1 ? parseInt(hostPort.substring(hpColonIdx + 1), 10) : 5432;
-  
-  return {
-    user,
-    password,
-    host,
-    port,
-    database
-  };
-}
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://wxmgfmzthzqktkxwmnyw.supabase.co';
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY ||
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4bWdmbXp0aHpxa3RreHdtbnl3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTk3NDYzMCwiZXhwIjoyMDk1NTUwNjMwfQ.O_lK5o-3WvlmKrsdYUVVyKhtQw6G344_c8zkonaa_1k';
 
 export default async function handler(req, res) {
-  // Setup standard CORS Headers for platform interoperability
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
-  res.setHeader(
-    'Access-Control-Allow-Headers',
+  res.setHeader('Access-Control-Allow-Headers',
     'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
   );
 
-  // Handle CORS OPTIONS Preflight
   if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
+    return res.status(200).end();
   }
 
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const clientParams = parseConnectionString(DB_URL);
-  const client = new Client({
-    ...clientParams,
-    ssl: { rejectUnauthorized: false }
-  });
-
   try {
-    await client.connect();
-
-    // 1. Ensure table exists in Supabase
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS portfolio_settings (
-        id VARCHAR(50) PRIMARY KEY,
-        settings JSONB NOT NULL,
-        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-
-    // 2. Query settings for 'main' key
-    const result = await client.query(
-      "SELECT settings FROM portfolio_settings WHERE id = 'main' LIMIT 1"
+    // Query via Supabase REST API (HTTPS) — fully supported on Vercel
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/portfolio_settings?id=eq.main&select=settings&limit=1`,
+      {
+        method: 'GET',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Content-Type': 'application/json'
+        }
+      }
     );
 
-    if (result.rows.length === 0) {
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Supabase API error ${response.status}: ${errorText}`);
+    }
+
+    const rows = await response.json();
+
+    if (!rows || rows.length === 0) {
       return res.status(200).json(null);
     }
 
-    // Return the settings JSON payload
-    return res.status(200).json(result.rows[0].settings);
+    return res.status(200).json(rows[0].settings);
 
   } catch (err) {
-    console.error("Vercel get-settings runtime error:", err);
-    return res.status(500).json({ error: 'Database operation failed', details: err.message });
-  } finally {
-    await client.end();
+    console.error('get-settings error:', err);
+    return res.status(500).json({ error: 'Failed to fetch settings', details: err.message });
   }
 }
