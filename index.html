@@ -328,28 +328,6 @@ body {
   border-radius: 12px;
   padding: 28px;
   transition: all 0.25s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.pf-project:hover {
-  background: var(--bg-card-hover);
-  border-color: var(--border-hover);
-  transform: translateY(-2px);
-}
-
-.project-screenshot-preview {
-  position: absolute;
-  inset: 0;
-  object-fit: cover;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  z-index: 5;
-  pointer-events: none;
-}
-
-.pf-project:hover .project-screenshot-preview {
-  opacity: 1;
 }
 .pf-project:hover {
   background: var(--bg-card-hover);
@@ -760,13 +738,6 @@ body {
         '<p style="font-size:13px;line-height:1.7;color:var(--text-secondary);margin:0 0 14px;">'+(p.desc||'')+'</p>'+
         '<div style="margin-bottom:14px;">'+tags+'</div>'+
         '<div style="display:flex;gap:8px;">'+links+'</div>';
-      // Add hover preview image if available
-      if(p.img && p.img.trim()) {
-        var previewImg = document.createElement('img');
-        previewImg.src = p.img.trim();
-        previewImg.className = 'project-screenshot-preview';
-        c.appendChild(previewImg);
-      }
       pg.appendChild(c);
     });
 
@@ -890,6 +861,14 @@ body {
           pr(c('  ⚠ ', 't-yellow') + c('Resume URL not configured. Go to ', 't-dim') + c('/admin', 't-cyan') + c(' → Social tab → paste your CV link.', 't-dim'));
         }
       },
+      // HIDDEN: admin command — NOT shown in help
+      admin: function(){
+        pr(c('  🔐 ', 't-cyan') + c('Enter admin password:', 't-white'));
+        adminPwdMode = true;
+        adminPwdBuffer = '';
+        inp.placeholder = '••••••••';
+        inp.setAttribute('type','password');
+      },
       theme: function(){
         var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
         if(isDark){
@@ -909,8 +888,29 @@ body {
       clear: function(){ out.innerHTML = ''; }
     };
 
+    // Password mode state for admin command
+    var adminPwdMode = false;
+    var adminPwdBuffer = '';
+
     inp.addEventListener('keydown', function(e){
       if(e.key==='Enter'){
+        if(adminPwdMode){
+          // In password mode — check entered password
+          var entered = inp.value;
+          inp.value = '';
+          inp.placeholder = 'Type a command...';
+          inp.setAttribute('type','text');
+          adminPwdMode = false;
+          // Show masked input in output
+          pr(c('  ❯ ', 't-cyan') + c('••••••••', 't-dim'));
+          if(entered === '2026\\'){
+            pr(c('  ✓ ', 't-green') + c('Access granted — opening admin dashboard...', 't-white'));
+            setTimeout(function(){ window.open('/admin/', '_blank'); }, 400);
+          } else {
+            pr(c('  ✗ ', 't-red') + c('Incorrect password. Access denied.', 't-dim'));
+          }
+          return;
+        }
         var raw = inp.value.trim(); inp.value='';
         if(!raw) return;
         hist.unshift(raw); hIdx = -1;
@@ -918,18 +918,25 @@ body {
         var cmd = raw.toLowerCase().split(' ')[0];
         if(cmds[cmd]) cmds[cmd]();
         else pr(c('  ✗ ', 't-red') + c('command not found: ', 't-dim') + c(cmd, 't-red') + c('. type ', 't-dim') + c('help', 't-yellow'));
-      } else if(e.key==='ArrowUp'){
+      } else if(!adminPwdMode && e.key==='ArrowUp'){
         e.preventDefault();
         if(hIdx < hist.length-1){ hIdx++; inp.value=hist[hIdx]; }
-      } else if(e.key==='ArrowDown'){
+      } else if(!adminPwdMode && e.key==='ArrowDown'){
         e.preventDefault();
         if(hIdx>0){ hIdx--; inp.value=hist[hIdx]; } else { hIdx=-1; inp.value=''; }
-      } else if(e.key==='Tab'){
+      } else if(!adminPwdMode && e.key==='Tab'){
         e.preventDefault();
         var p = inp.value.toLowerCase();
         var m = Object.keys(cmds).filter(function(c2){return c2.startsWith(p);});
         if(m.length===1) inp.value=m[0];
         else if(m.length>1) pr(c('  '+m.join('  '), 't-dim'));
+      } else if(adminPwdMode && e.key==='Escape'){
+        // Allow escaping password mode
+        inp.value = '';
+        inp.placeholder = 'Type a command...';
+        inp.setAttribute('type','text');
+        adminPwdMode = false;
+        pr(c('  ⊘ ', 't-dim') + c('Cancelled.', 't-dim'));
       }
     });
   }
