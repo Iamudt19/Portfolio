@@ -7,6 +7,28 @@
 	
 	
 	<script>try{if(localStorage.get("__framer_force_showing_editorbar_since")){const n=document.createElement("link");n.rel = "modulepreload";n.href="https://framer.com/edit/init.mjs";document.head.appendChild(n)}}catch(e){}</script>
+	<script>
+      (function() {
+        const targetTitle = "Udit Portfolio Website";
+        const targetFavicon = "/favicon.svg";
+        try {
+          Object.defineProperty(document, 'title', {
+            get: function() { return targetTitle; },
+            set: function() {},
+            configurable: true
+          });
+        } catch (e) {}
+        function lock() {
+          let t = document.querySelector('title');
+          if (t && t.textContent !== targetTitle) t.textContent = targetTitle;
+          document.querySelectorAll('link[rel*="icon"]').forEach(l => {
+            if (l.getAttribute('href') !== targetFavicon) l.setAttribute('href', targetFavicon);
+          });
+        }
+        lock();
+        new MutationObserver(lock).observe(document.head, { childList: true, subtree: true, characterData: true });
+      })();
+    </script>
 	<!-- Start of headStart -->
     
     <!-- End of headStart -->
@@ -435,32 +457,19 @@ body {
   font-size: clamp(100px, 14vw, 200px);
   font-weight: 900;
   text-transform: uppercase;
-  /* Default light mode: dark text visible on white background */
-  color: #000000;
-  opacity: 0.07;
+  color: var(--text-primary);
+  opacity: 0.08;
   letter-spacing: 0.05em;
-  animation: hero-bg-loop var(--hero-bg-speed, 45s) linear infinite;
+  animation: hero-bg-loop 45s linear infinite;
   white-space: nowrap;
   line-height: 1;
   user-select: none;
   padding-bottom: 12px;
 }
-/* Dark mode: white text visible on dark background */
-[data-theme="dark"] .pf-hero-bg-text {
-  color: #ffffff;
-  opacity: 0.07;
-}
-/* Override Framer's hardcoded inline "html body { background: rgb(255,255,255) }" in dark mode */
-[data-theme="dark"] body,
-[data-theme="dark"] html body {
-  background: #000000 !important;
-  background-color: #000000 !important;
-}
 @keyframes hero-bg-loop {
   0% { transform: translate3d(-50%, 0, 0); }
   100% { transform: translate3d(0, 0, 0); }
 }
-
 </style>
 <!-- PORTFOLIO_INJECT_HEAD_END -->
 </head>
@@ -551,8 +560,29 @@ body {
         <p id="pf-bio1" style="font-size:14px; line-height:1.9; color:var(--text-secondary); margin:0 0 20px;"></p>
         <p id="pf-bio2" style="font-size:14px; line-height:1.9; color:var(--text-secondary); margin:0;"></p>
       </div>
-      <div id="pf-skills-container" style="display:flex; flex-direction:column; gap:24px; padding-top:4px;"></div>
-
+      <div style="display:flex; flex-direction:column; gap:24px; padding-top:4px;">
+        <div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+            <span style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.12em; color:var(--text-secondary);">Frontend / WebGL</span>
+            <span id="pf-s1v" class="font-mono" style="font-size:10px; font-weight:700;"></span>
+          </div>
+          <div class="pf-skill-track"><div id="pf-s1b" class="pf-skill-fill" style="width:0%"></div></div>
+        </div>
+        <div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+            <span style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.12em; color:var(--text-secondary);">Backend / Web3</span>
+            <span id="pf-s2v" class="font-mono" style="font-size:10px; font-weight:700;"></span>
+          </div>
+          <div class="pf-skill-track"><div id="pf-s2b" class="pf-skill-fill" style="width:0%"></div></div>
+        </div>
+        <div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+            <span style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.12em; color:var(--text-secondary);">Hardware / IoT</span>
+            <span id="pf-s3v" class="font-mono" style="font-size:10px; font-weight:700;"></span>
+          </div>
+          <div class="pf-skill-track"><div id="pf-s3b" class="pf-skill-fill" style="width:0%"></div></div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -623,18 +653,14 @@ body {
     name: "Udit",
     title: "Creative Technologist / UI & IoT Engineer",
     heroBgText: "WEBGL SIMULATION // EMBEDDED IOT NETWORKS // CREATIVE TECHNOLOGIST // INTERACTIVE ARCHITECTURES",
+    customTickerText: "WebGL Simulation // Embedded IoT Networks // Creative Technologist // Interactive Architectures",
     pitch: "Developing high-fidelity interactive architectures, custom canvas WebGL simulations, and robust embedded IoT networks where low-level engineering meets visual high art.",
     bio1: "My engineering philosophy bridges two worlds: visual design excellence and low-level hardware-software performance. I thrive on bringing complex visual animations to life with spring physics and fluid math, and building responsive, low-latency applications that respond instantly to touch, gesture, and telemetry streams.",
     bio2: "Whether orchestrating thousands of active nodes inside an interactive outline canvas editor, mapping out real-time telemetry streams over MQTT/WebSockets, or soldering customized ESP32 microcontrollers to automate physical space nodes, I am driven by the pursuit of bulletproof, pixel-perfect, and ultra-high performance user environments.",
-    skills: [
-      { label: "Frontend / WebGL", value: 92, color: "green" },
-      { label: "Backend / Web3",   value: 84, color: "cyan"  },
-      { label: "Hardware / IoT",   value: 89, color: "orange"}
-    ],
+    skill1: "92", skill2: "84", skill3: "89",
     email: "iamudt19@gmail.com",
     github: "https://github.com/Iamudt19",
     linkedin: "https://linkedin.com",
-    resumeUrl: "",
     projects: [
       {prefix:"/01 · EDITOR TOOLBOX",title:"Chaptr",desc:"A premium collaborative markdown editor and screenplay outline sandbox facilitating structured creative drafts without distractions.",tags:"React, Next.js, Slate.js, Tailwind",img:"",codeLink:"https://github.com/Iamudt19/Chaptr",demoLink:"https://github.com/Iamudt19/Chaptr"},
       {prefix:"/02 · AGENT ORCHESTRATION",title:"Antigravity AI",desc:"An agentic workspace visualization dashboard orchestrating background nodes, running parallel sandboxed developer tasks, and tracking multi-agent pipelines.",tags:"Node.js, WebSockets, Tailwind, Docker",img:"",codeLink:"",demoLink:""},
@@ -680,6 +706,35 @@ body {
     // Navbar
     $('pf-nav-logo').textContent = d.name || DEF.name;
 
+    // Running Text Band (Top Ticker)
+    var tickerText = d.customTickerText || DEF.customTickerText;
+    if (tickerText) {
+      var tickerItems = tickerText.split('//').map(function(s){ return s.trim(); });
+      var repeatedItems = [];
+      for (var i = 0; i < 4; i++) {
+        repeatedItems = repeatedItems.concat(tickerItems);
+      }
+      var tickerContainer = document.querySelector('#pf-custom-ticker .ticker-items');
+      if (tickerContainer) {
+        tickerContainer.innerHTML = '';
+        repeatedItems.forEach(function(item, idx) {
+          if (idx > 0) {
+            var dot = document.createElement('span');
+            dot.className = 'ticker-dot';
+            tickerContainer.appendChild(dot);
+          }
+          var textSpan = document.createElement('span');
+          textSpan.textContent = item;
+          tickerContainer.appendChild(textSpan);
+        });
+        if (repeatedItems.length > 0) {
+          var dot = document.createElement('span');
+          dot.className = 'ticker-dot';
+          tickerContainer.appendChild(dot);
+        }
+      }
+    }
+
     // Terminal header dynamic title
     var shortName = (d.name || DEF.name).toUpperCase().replace(/\s+/g, '_');
     $('pf-term-header-title').textContent = shortName + '_TERMINAL_V1.2';
@@ -688,37 +743,16 @@ body {
     $('pf-bio1').textContent = d.bio1 || DEF.bio1;
     $('pf-bio2').textContent = d.bio2 || DEF.bio2;
 
-    // Skills — dynamic from saved settings
-    var skillColorMap = {
-      green:  '#22c55e',
-      cyan:   '#06b6d4',
-      orange: '#f97316',
-      purple: '#a855f7',
-      red:    '#ef4444',
-      white:  'var(--text-primary)'
-    };
-    var skills = d.skills || DEF.skills;
-    var skillsContainer = document.getElementById('pf-skills-container');
-    if (skillsContainer) {
-      skillsContainer.innerHTML = '';
-      skills.forEach(function(skill) {
-        var color = skillColorMap[skill.color] || skillColorMap.green;
-        var barEl = document.createElement('div');
-        barEl.innerHTML =
-          '<div style="display:flex;justify-content:space-between;margin-bottom:10px;">' +
-            '<span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:var(--text-secondary);">' + skill.label + '</span>' +
-            '<span class="font-mono" style="font-size:10px;font-weight:700;color:' + color + ';">' + skill.value + '%</span>' +
-          '</div>' +
-          '<div class="pf-skill-track"><div class="pf-skill-fill" data-w="' + skill.value + '" style="width:0%;background:' + color + ';"></div></div>';
-        skillsContainer.appendChild(barEl);
-      });
-      // Animate bars in
-      setTimeout(function(){
-        skillsContainer.querySelectorAll('.pf-skill-fill').forEach(function(bar){
-          bar.style.width = bar.getAttribute('data-w') + '%';
-        });
-      }, 200);
-    }
+    // Skills
+    var s1 = d.skill1 || DEF.skill1, s2 = d.skill2 || DEF.skill2, s3 = d.skill3 || DEF.skill3;
+    $('pf-s1v').textContent = s1 + '%';
+    $('pf-s2v').textContent = s2 + '%';
+    $('pf-s3v').textContent = s3 + '%';
+    setTimeout(function(){
+      $('pf-s1b').style.width = s1 + '%';
+      $('pf-s2b').style.width = s2 + '%';
+      $('pf-s3b').style.width = s3 + '%';
+    }, 200);
 
     // Contact
     $('pf-c-email').href = 'mailto:' + (d.email || DEF.email);
@@ -817,19 +851,16 @@ body {
       },
       skills: function(){
         pr(c('  ┌─ SKILLS ────────────────────────────', 't-dim'));
-        var skillList = d.skills || DEF.skills;
-        var termColorMap = { green:'t-green', cyan:'t-cyan', orange:'t-orange', purple:'t-magenta', red:'t-red', white:'t-white' };
-        function bar(label, val, tcolor){
+        var s1=d.skill1||DEF.skill1, s2=d.skill2||DEF.skill2, s3=d.skill3||DEF.skill3;
+        function bar(label,val,color){
           var filled = Math.round(val/5);
           var empty = 20 - filled;
           var barStr = Array(filled+1).join('█') + Array(empty+1).join('░');
-          // Pad label to fixed width for alignment
-          var padded = (label + '                  ').substring(0, 18);
-          pr(c('  │ ', 't-dim') + c(padded, 't-white') + c(' ' + barStr + ' ', tcolor) + c(val+'%', 't-white'));
+          pr(c('  │ ', 't-dim') + c(label, 't-white') + c(' ' + barStr + ' ', color) + c(val+'%', 't-white'));
         }
-        skillList.forEach(function(s){
-          bar(s.label, s.value, termColorMap[s.color] || 't-green');
-        });
+        bar('Frontend / WebGL ', s1, 't-green');
+        bar('Backend / Web3   ', s2, 't-cyan');
+        bar('Hardware / IoT   ', s3, 't-orange');
         pr(c('  └─────────────────────────────────────', 't-dim'));
       },
       projects: function(){
@@ -858,22 +889,7 @@ body {
         pr(c('  ' + (d.name||DEF.name), 't-green t-bold') + c(' — ', 't-dim') + c(d.title||DEF.title, 't-cyan'));
       },
       resume: function(){
-        var s = localStorage.getItem('portfolio_settings');
-        var resumeUrl = s ? (JSON.parse(s).resumeUrl || '') : '';
-        if (resumeUrl) {
-          pr(c('  ↗ ', 't-green') + c('Opening resume...', 't-white'));
-          window.open(resumeUrl, '_blank');
-        } else {
-          pr(c('  ⚠ ', 't-yellow') + c('Resume URL not configured. Go to ', 't-dim') + c('/admin', 't-cyan') + c(' → Social tab → paste your CV link.', 't-dim'));
-        }
-      },
-      // HIDDEN: admin command — NOT shown in help
-      admin: function(){
-        pr(c('  🔐 ', 't-cyan') + c('Enter admin password:', 't-white'));
-        adminPwdMode = true;
-        adminPwdBuffer = '';
-        inp.placeholder = '••••••••';
-        inp.setAttribute('type','password');
+        pr(c('  ⚠ ', 't-yellow') + c('Resume URL not configured. Set it in the ', 't-dim') + c('admin panel', 't-cyan') + c('.', 't-dim'));
       },
       theme: function(){
         var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -894,34 +910,8 @@ body {
       clear: function(){ out.innerHTML = ''; }
     };
 
-    // Password mode state for admin command
-    var adminPwdMode = false;
-    var adminPwdBuffer = '';
-
     inp.addEventListener('keydown', function(e){
       if(e.key==='Enter'){
-        if(adminPwdMode){
-          // In password mode — check entered password
-          var entered = inp.value;
-          inp.value = '';
-          inp.placeholder = 'Type a command...';
-          inp.setAttribute('type','text');
-          adminPwdMode = false;
-          // Show masked input in output
-          pr(c('  ❯ ', 't-cyan') + c('••••••••', 't-dim'));
-          if(entered === '2026\\'){
-            pr(c('  ✓ ', 't-green') + c('Access granted — opening admin dashboard...', 't-white'));
-            setTimeout(function(){
-              // Generate a one-time session token and store it so admin page can verify
-              var tk = Math.random().toString(36).slice(2) + Date.now().toString(36);
-              sessionStorage.setItem('admin_terminal_tk', tk);
-              window.open('/admin/?tk=' + tk, '_blank');
-            }, 400);
-          } else {
-            pr(c('  ✗ ', 't-red') + c('Incorrect password. Access denied.', 't-dim'));
-          }
-          return;
-        }
         var raw = inp.value.trim(); inp.value='';
         if(!raw) return;
         hist.unshift(raw); hIdx = -1;
@@ -929,25 +919,18 @@ body {
         var cmd = raw.toLowerCase().split(' ')[0];
         if(cmds[cmd]) cmds[cmd]();
         else pr(c('  ✗ ', 't-red') + c('command not found: ', 't-dim') + c(cmd, 't-red') + c('. type ', 't-dim') + c('help', 't-yellow'));
-      } else if(!adminPwdMode && e.key==='ArrowUp'){
+      } else if(e.key==='ArrowUp'){
         e.preventDefault();
         if(hIdx < hist.length-1){ hIdx++; inp.value=hist[hIdx]; }
-      } else if(!adminPwdMode && e.key==='ArrowDown'){
+      } else if(e.key==='ArrowDown'){
         e.preventDefault();
         if(hIdx>0){ hIdx--; inp.value=hist[hIdx]; } else { hIdx=-1; inp.value=''; }
-      } else if(!adminPwdMode && e.key==='Tab'){
+      } else if(e.key==='Tab'){
         e.preventDefault();
         var p = inp.value.toLowerCase();
         var m = Object.keys(cmds).filter(function(c2){return c2.startsWith(p);});
         if(m.length===1) inp.value=m[0];
         else if(m.length>1) pr(c('  '+m.join('  '), 't-dim'));
-      } else if(adminPwdMode && e.key==='Escape'){
-        // Allow escaping password mode
-        inp.value = '';
-        inp.placeholder = 'Type a command...';
-        inp.setAttribute('type','text');
-        adminPwdMode = false;
-        pr(c('  ⊘ ', 't-dim') + c('Cancelled.', 't-dim'));
       }
     });
   }
@@ -1008,9 +991,6 @@ body {
   function initHeroBgText(){
     var d = load();
     var text = (d.heroBgText || DEF.heroBgText).toUpperCase();
-    /* Apply speed from settings — default 45s */
-    var speed = parseInt(d.heroBgSpeed || DEF.heroBgSpeed || 45, 10);
-    document.documentElement.style.setProperty('--hero-bg-speed', speed + 's');
     /* Repeat text 4x so the 50% translate loops are seamless at any viewport */
     var repeatedText = text + '   ·   ' + text + '   ·   ' + text + '   ·   ' + text + '   ·   ';
 

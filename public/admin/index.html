@@ -138,6 +138,10 @@
             <input type="text" id="cfg-hero-bg-text" class="w-full px-4 py-3.5 rounded-lg bg-neutral-950 border border-neutral-800 text-white text-xs outline-none focus:border-white transition-colors" placeholder="Custom text running behind hero photo..." />
           </div>
           <div class="flex flex-col gap-2">
+            <label class="text-[10px] font-bold uppercase tracking-wider opacity-65 text-neutral-400">Running Text Band (Top Ticker)</label>
+            <input type="text" id="cfg-custom-ticker-text" class="w-full px-4 py-3.5 rounded-lg bg-neutral-950 border border-neutral-800 text-white text-xs outline-none focus:border-white transition-colors" placeholder="e.g. WebGL Simulation // Embedded IoT Networks..." />
+          </div>
+          <div class="flex flex-col gap-2">
             <div class="flex items-center justify-between">
               <label class="text-[10px] font-bold uppercase tracking-wider opacity-65 text-neutral-400">Background Text Scroll Speed</label>
               <span id="cfg-bg-speed-label" class="text-[10px] font-bold text-cyan-400 font-mono">45s</span>
@@ -244,6 +248,7 @@
       name: "Udit",
       title: "Creative Technologist / UI & IoT Engineer",
       heroBgText: "WEBGL SIMULATION // EMBEDDED IOT NETWORKS // CREATIVE TECHNOLOGIST // INTERACTIVE ARCHITECTURES",
+      customTickerText: "WebGL Simulation // Embedded IoT Networks // Creative Technologist // Interactive Architectures",
       heroBgSpeed: 45,
       pitch: "Developing high-fidelity interactive architectures, custom canvas WebGL simulations, and robust embedded IoT networks where low-level engineering meets visual high art.",
       bio1: "My engineering philosophy bridges two worlds: visual design excellence and low-level hardware-software performance. I thrive on bringing complex visual animations to life with spring physics and fluid math, and building responsive, low-latency applications that respond instantly to touch, gesture, and telemetry streams.",
@@ -675,6 +680,7 @@
       document.getElementById('cfg-name').value = data.name || defaultSettings.name;
       document.getElementById('cfg-title').value = data.title || defaultSettings.title;
       document.getElementById('cfg-hero-bg-text').value = data.heroBgText || defaultSettings.heroBgText;
+      document.getElementById('cfg-custom-ticker-text').value = data.customTickerText || defaultSettings.customTickerText || '';
       const bgSpeed = data.heroBgSpeed || defaultSettings.heroBgSpeed || 45;
       document.getElementById('cfg-bg-speed').value = bgSpeed;
       document.getElementById('cfg-bg-speed-label').textContent = bgSpeed + 's';
@@ -728,6 +734,7 @@
         name: document.getElementById('cfg-name').value.trim() || defaultSettings.name,
         title: document.getElementById('cfg-title').value.trim() || defaultSettings.title,
         heroBgText: document.getElementById('cfg-hero-bg-text').value.trim() || defaultSettings.heroBgText,
+        customTickerText: document.getElementById('cfg-custom-ticker-text').value.trim() || defaultSettings.customTickerText,
         heroBgSpeed: parseInt(document.getElementById('cfg-bg-speed').value, 10) || 45,
         pitch: document.getElementById('cfg-pitch').value.trim() || defaultSettings.pitch,
         bio1: document.getElementById('cfg-bio1').value.trim() || defaultSettings.bio1,
@@ -797,6 +804,7 @@
         name: document.getElementById('cfg-name').value.trim() || defaultSettings.name,
         title: document.getElementById('cfg-title').value.trim() || defaultSettings.title,
         heroBgText: document.getElementById('cfg-hero-bg-text').value.trim() || defaultSettings.heroBgText,
+        customTickerText: document.getElementById('cfg-custom-ticker-text').value.trim() || defaultSettings.customTickerText,
         heroBgSpeed: parseInt(document.getElementById('cfg-bg-speed').value, 10) || 45,
         pitch: document.getElementById('cfg-pitch').value.trim() || defaultSettings.pitch,
         bio1: document.getElementById('cfg-bio1').value.trim() || defaultSettings.bio1,

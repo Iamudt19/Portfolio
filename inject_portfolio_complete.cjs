@@ -593,6 +593,7 @@ const bodyInject = `<!-- PORTFOLIO_INJECT_BODY_START -->
     name: "Udit",
     title: "Creative Technologist / UI & IoT Engineer",
     heroBgText: "WEBGL SIMULATION // EMBEDDED IOT NETWORKS // CREATIVE TECHNOLOGIST // INTERACTIVE ARCHITECTURES",
+    customTickerText: "WebGL Simulation // Embedded IoT Networks // Creative Technologist // Interactive Architectures",
     pitch: "Developing high-fidelity interactive architectures, custom canvas WebGL simulations, and robust embedded IoT networks where low-level engineering meets visual high art.",
     bio1: "My engineering philosophy bridges two worlds: visual design excellence and low-level hardware-software performance. I thrive on bringing complex visual animations to life with spring physics and fluid math, and building responsive, low-latency applications that respond instantly to touch, gesture, and telemetry streams.",
     bio2: "Whether orchestrating thousands of active nodes inside an interactive outline canvas editor, mapping out real-time telemetry streams over MQTT/WebSockets, or soldering customized ESP32 microcontrollers to automate physical space nodes, I am driven by the pursuit of bulletproof, pixel-perfect, and ultra-high performance user environments.",
@@ -644,6 +645,35 @@ const bodyInject = `<!-- PORTFOLIO_INJECT_BODY_START -->
 
     // Navbar
     $('pf-nav-logo').textContent = d.name || DEF.name;
+
+    // Running Text Band (Top Ticker)
+    var tickerText = d.customTickerText || DEF.customTickerText;
+    if (tickerText) {
+      var tickerItems = tickerText.split('//').map(function(s){ return s.trim(); });
+      var repeatedItems = [];
+      for (var i = 0; i < 4; i++) {
+        repeatedItems = repeatedItems.concat(tickerItems);
+      }
+      var tickerContainer = document.querySelector('#pf-custom-ticker .ticker-items');
+      if (tickerContainer) {
+        tickerContainer.innerHTML = '';
+        repeatedItems.forEach(function(item, idx) {
+          if (idx > 0) {
+            var dot = document.createElement('span');
+            dot.className = 'ticker-dot';
+            tickerContainer.appendChild(dot);
+          }
+          var textSpan = document.createElement('span');
+          textSpan.textContent = item;
+          tickerContainer.appendChild(textSpan);
+        });
+        if (repeatedItems.length > 0) {
+          var dot = document.createElement('span');
+          dot.className = 'ticker-dot';
+          tickerContainer.appendChild(dot);
+        }
+      }
+    }
 
     // Terminal header dynamic title
     var shortName = (d.name || DEF.name).toUpperCase().replace(/\\s+/g, '_');
