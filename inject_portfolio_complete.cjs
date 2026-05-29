@@ -776,6 +776,7 @@ const bodyInject = `<!-- PORTFOLIO_INJECT_BODY_START -->
         pr('  ' + c('resume', 't-yellow') + c('     download link', 't-dim'));
         pr('  ' + c('matrix', 't-magenta') + c('     easter egg 🐰', 't-dim'));
         pr('  ' + c('theme', 't-yellow') + c('      toggle dark/light', 't-dim'));
+        pr('  ' + c('admin', 't-yellow') + c('      open customizer deck', 't-dim'));
         pr('  ' + c('clear', 't-yellow') + c('      clear output', 't-dim'));
         pr('');
       },
@@ -846,6 +847,12 @@ const bodyInject = `<!-- PORTFOLIO_INJECT_BODY_START -->
       matrix: function(){
         pr(c('  ⚡ Initiating matrix rain...', 't-magenta'));
         matrixRain();
+      },
+      admin: function(){
+        pr(c('  ⚡ Navigating to Studio Control Deck...', 't-cyan'));
+        setTimeout(function(){
+          window.location.href = '/admin/';
+        }, 800);
       },
       clear: function(){ out.innerHTML = ''; }
     };
