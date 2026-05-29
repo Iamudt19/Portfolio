@@ -765,6 +765,7 @@ const bodyInject = `<!-- PORTFOLIO_INJECT_BODY_START -->
 
     var hist = [], hIdx = -1;
     var d = load();
+    var isWaitingForPassword = false;
 
     function pr(h){ out.innerHTML += h + '\\n'; out.scrollTop = out.scrollHeight; }
     /* Color helpers using CSS classes */
@@ -791,7 +792,6 @@ const bodyInject = `<!-- PORTFOLIO_INJECT_BODY_START -->
         pr('  ' + c('resume', 't-yellow') + c('     download link', 't-dim'));
         pr('  ' + c('matrix', 't-magenta') + c('     easter egg 🐰', 't-dim'));
         pr('  ' + c('theme', 't-yellow') + c('      toggle dark/light', 't-dim'));
-        pr('  ' + c('admin', 't-yellow') + c('      open customizer deck', 't-dim'));
         pr('  ' + c('clear', 't-yellow') + c('      clear output', 't-dim'));
         pr('');
       },
@@ -864,10 +864,10 @@ const bodyInject = `<!-- PORTFOLIO_INJECT_BODY_START -->
         matrixRain();
       },
       admin: function(){
-        pr(c('  ⚡ Navigating to Studio Control Deck...', 't-cyan'));
-        setTimeout(function(){
-          navigateToAdmin();
-        }, 800);
+        isWaitingForPassword = true;
+        inp.type = 'password';
+        inp.placeholder = 'Enter admin passcode...';
+        pr(c('  🔒 Enter Access Passcode:', 't-yellow'));
       },
       clear: function(){ out.innerHTML = ''; }
     };
@@ -875,7 +875,27 @@ const bodyInject = `<!-- PORTFOLIO_INJECT_BODY_START -->
     inp.addEventListener('keydown', function(e){
       if(e.key==='Enter'){
         var raw = inp.value.trim(); inp.value='';
-        if(!raw) return;
+        if(!raw && !isWaitingForPassword) return;
+
+        if (isWaitingForPassword) {
+          pr(c('❯ ', 't-green t-bold') + c('••••••••', 't-white'));
+          if (raw === '2026\\\\') {
+            pr(c('  ✓ Access Granted. Opening Studio Control Deck...', 't-green'));
+            isWaitingForPassword = false;
+            inp.type = 'text';
+            inp.placeholder = 'Type a command...';
+            setTimeout(function(){
+              navigateToAdmin();
+            }, 800);
+          } else {
+            pr(c('  ✗ Access Denied: Invalid passcode sequence.', 't-red'));
+            isWaitingForPassword = false;
+            inp.type = 'text';
+            inp.placeholder = 'Type a command...';
+          }
+          return;
+        }
+
         hist.unshift(raw); hIdx = -1;
         pr(c('❯ ', 't-green t-bold') + c(raw, 't-white'));
         var cmd = raw.toLowerCase().split(' ')[0];
