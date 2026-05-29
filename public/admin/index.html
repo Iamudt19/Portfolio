@@ -113,6 +113,7 @@
         <button onclick="switchAdminTab('projects')" class="admin-tab-btn w-full text-left px-4 py-3.5 rounded-lg text-xs font-bold tracking-widest uppercase text-neutral-400 hover:bg-neutral-900/60 hover:text-white transition-all cursor-pointer">3. Project Cards</button>
         <button onclick="switchAdminTab('social')" class="admin-tab-btn w-full text-left px-4 py-3.5 rounded-lg text-xs font-bold tracking-widest uppercase text-neutral-400 hover:bg-neutral-900/60 hover:text-white transition-all cursor-pointer">4. Contact Network</button>
         <button onclick="switchAdminTab('timeline')" class="admin-tab-btn w-full text-left px-4 py-3.5 rounded-lg text-xs font-bold tracking-widest uppercase text-neutral-400 hover:bg-neutral-900/60 hover:text-white transition-all cursor-pointer">5. Experience Chronicle</button>
+        <button onclick="switchAdminTab('messages')" class="admin-tab-btn w-full text-left px-4 py-3.5 rounded-lg text-xs font-bold tracking-widest uppercase text-neutral-400 hover:bg-neutral-900/60 hover:text-white transition-all cursor-pointer">6. Messages & Leads</button>
         
         <div class="mt-auto pt-4 border-t border-neutral-900 flex flex-col gap-2">
           <button onclick="resetPortfolioDefaults()" class="w-full py-2.5 rounded-lg border border-neutral-800 hover:bg-neutral-900 text-neutral-400 text-[10px] font-bold uppercase tracking-wider cursor-pointer">Reset Defaults</button>
@@ -220,6 +221,18 @@
             <button onclick="addAdminTimelineCard()" class="px-4 py-2 rounded-lg bg-neutral-900 border border-neutral-800 hover:bg-neutral-800 text-white text-xs font-bold uppercase tracking-wider cursor-pointer">＋ Add Chronicle</button>
           </div>
           <div id="admin-timeline-list-container" class="flex flex-col gap-6"></div>
+        </div>
+
+        <!-- Tab 6: Messages & Leads Log -->
+        <div id="admin-tab-messages" class="admin-content-tab hidden flex flex-col gap-6">
+          <div class="flex items-center justify-between border-b border-neutral-900 pb-3">
+            <h4 class="font-outfit text-base font-extrabold text-white uppercase tracking-wider">Messages &amp; Leads Log</h4>
+            <button onclick="clearMessagesLog()" class="px-4 py-2 rounded-lg bg-rose-950/40 border border-rose-900/60 hover:bg-rose-900/60 text-rose-300 text-xs font-bold uppercase tracking-wider cursor-pointer">🗑 Clear Log</button>
+          </div>
+          <p class="text-[10px] text-neutral-500 mt-0.5">Below are all message submissions captured from the interactive portfolio terminal.</p>
+          <div id="admin-messages-container" class="flex flex-col gap-3">
+            <!-- Dynamic messages will be rendered here -->
+          </div>
         </div>
 
       </div>
@@ -715,6 +728,31 @@
       timeline.forEach((item, idx) => {
         timelineContainer.appendChild(createTimelineAdminCard(item, idx));
       });
+
+      // Render Messages
+      const msgContainer = document.getElementById('admin-messages-container');
+      if (msgContainer) {
+        msgContainer.innerHTML = '';
+        const messages = data.messages || [];
+        if (messages.length === 0) {
+          msgContainer.innerHTML = `<div class="text-xs text-neutral-500 italic py-8 text-center border border-dashed border-neutral-800 rounded-lg">No terminal messages received yet.</div>`;
+        } else {
+          [...messages].reverse().forEach((msg, idx) => {
+            const card = document.createElement('div');
+            card.className = 'border border-neutral-800 rounded-lg p-4 bg-neutral-950/45 flex flex-col gap-2 transition-all hover:border-neutral-700';
+            const dateVal = msg.timestamp ? new Date(msg.timestamp) : new Date();
+            const timeStr = isNaN(dateVal.getTime()) ? 'Unknown Date' : dateVal.toLocaleString();
+            card.innerHTML = `
+              <div class="flex justify-between items-center border-b border-neutral-900 pb-2">
+                <span class="text-[9px] font-bold text-neutral-500 uppercase tracking-widest font-mono">${timeStr}</span>
+                <span class="text-[9px] font-bold text-emerald-400 uppercase tracking-widest font-mono">Terminal Lead</span>
+              </div>
+              <p class="text-xs text-neutral-300 whitespace-pre-wrap font-mono select-text">${escapeHtml(msg.text || '')}</p>
+            `;
+            msgContainer.appendChild(card);
+          });
+        }
+      }
     }
 
     function switchAdminTab(tabName) {
@@ -730,6 +768,10 @@
     }
 
     function savePortfolioCustomizations() {
+      const saved = localStorage.getItem('portfolio_settings');
+      const data = saved ? JSON.parse(saved) : defaultSettings;
+      const existingMessages = data.messages || [];
+
       const updated = {
         name: document.getElementById('cfg-name').value.trim() || defaultSettings.name,
         title: document.getElementById('cfg-title').value.trim() || defaultSettings.title,
@@ -745,7 +787,8 @@
         linkedin: document.getElementById('cfg-linkedin').value.trim() || defaultSettings.linkedin,
         resumeUrl: document.getElementById('cfg-resume-url').value.trim() || '',
         projects: getProjectsFromUI(),
-        timeline: getTimelineFromUI()
+        timeline: getTimelineFromUI(),
+        messages: existingMessages
       };
 
       localStorage.setItem('portfolio_settings', JSON.stringify(updated));
@@ -807,6 +850,10 @@
     }
 
     function exportGlobalConfigForGit() {
+      const saved = localStorage.getItem('portfolio_settings');
+      const data = saved ? JSON.parse(saved) : defaultSettings;
+      const existingMessages = data.messages || [];
+
       const updated = {
         name: document.getElementById('cfg-name').value.trim() || defaultSettings.name,
         title: document.getElementById('cfg-title').value.trim() || defaultSettings.title,
@@ -822,7 +869,8 @@
         linkedin: document.getElementById('cfg-linkedin').value.trim() || defaultSettings.linkedin,
         resumeUrl: document.getElementById('cfg-resume-url').value.trim() || '',
         projects: getProjectsFromUI(),
-        timeline: getTimelineFromUI()
+        timeline: getTimelineFromUI(),
+        messages: existingMessages
       };
 
       const jsonStr = JSON.stringify(updated, null, 2);
@@ -834,6 +882,48 @@
         modal.classList.remove('opacity-0', 'scale-95');
         modal.classList.add('opacity-100', 'scale-100');
       }, 50);
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function clearMessagesLog() {
+      if (confirm('Are you absolutely sure you want to permanently delete all messages and leads? This cannot be undone.')) {
+        const saved = localStorage.getItem('portfolio_settings');
+        const data = saved ? JSON.parse(saved) : defaultSettings;
+        data.messages = [];
+        localStorage.setItem('portfolio_settings', JSON.stringify(data));
+        populateAdminInputs();
+        
+        const toast = document.getElementById('toast-notification');
+        toast.innerHTML = '<span class="text-base">⏳</span> Clearing messages log on Supabase...';
+        toast.classList.add('show');
+        
+        apiFetch('save-settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        })
+        .then(() => {
+          toast.innerHTML = '<span class="text-base">✓</span> Messages log cleared successfully!';
+        })
+        .catch((err) => {
+          console.error(err);
+          toast.innerHTML = '<span class="text-base">✓</span> Cleared locally (offline mode).';
+        })
+        .finally(() => {
+          setTimeout(() => {
+            toast.classList.remove('show');
+          }, 1500);
+        });
+      }
     }
 
     function closeExportModal() {

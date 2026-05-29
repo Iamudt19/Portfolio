@@ -743,18 +743,19 @@ const bodyInject = `<!-- PORTFOLIO_INJECT_BODY_START -->
     }
   }
 
-  function navigateToAdmin() {
+  function navigateToAdmin(query) {
     var loc = window.location;
     var path = loc.pathname;
+    var suffix = query ? '?' + query : '';
     if (!path.endsWith('/')) {
       if (path.indexOf('.') !== -1) {
         var base = path.substring(0, path.lastIndexOf('/'));
-        loc.href = loc.origin + base + '/admin/';
+        loc.href = loc.origin + base + '/admin/' + suffix;
       } else {
-        loc.href = loc.origin + path + '/admin/';
+        loc.href = loc.origin + path + '/admin/' + suffix;
       }
     } else {
-      loc.href = loc.origin + path + 'admin/';
+      loc.href = loc.origin + path + 'admin/' + suffix;
     }
   }
 
@@ -783,16 +784,22 @@ const bodyInject = `<!-- PORTFOLIO_INJECT_BODY_START -->
       help: function(){
         pr(c('  Available commands:', 't-cyan t-bold'));
         pr('');
-        pr('  ' + c('help', 't-yellow') + c('       show this list', 't-dim'));
-        pr('  ' + c('about', 't-yellow') + c('      who am I', 't-dim'));
-        pr('  ' + c('skills', 't-yellow') + c('     tech stack', 't-dim'));
-        pr('  ' + c('projects', 't-yellow') + c('   featured work', 't-dim'));
-        pr('  ' + c('contact', 't-yellow') + c('    email / github / linkedin', 't-dim'));
-        pr('  ' + c('whoami', 't-yellow') + c('     identity tagline', 't-dim'));
-        pr('  ' + c('resume', 't-yellow') + c('     download link', 't-dim'));
-        pr('  ' + c('matrix', 't-magenta') + c('     easter egg 🐰', 't-dim'));
-        pr('  ' + c('theme', 't-yellow') + c('      toggle dark/light', 't-dim'));
-        pr('  ' + c('clear', 't-yellow') + c('      clear output', 't-dim'));
+        pr('  ' + c('help', 't-yellow') + c('            show this list', 't-dim'));
+        pr('  ' + c('about', 't-yellow') + c('           who am I', 't-dim'));
+        pr('  ' + c('skills', 't-yellow') + c('          tech stack', 't-dim'));
+        pr('  ' + c('projects', 't-yellow') + c('        featured work', 't-dim'));
+        pr('  ' + c('contact [msg]', 't-yellow') + c('   send feedback / info', 't-dim'));
+        pr('  ' + c('whoami', 't-yellow') + c('          identity tagline', 't-dim'));
+        pr('  ' + c('resume', 't-yellow') + c('          download link', 't-dim'));
+        pr('  ' + c('neofetch', 't-yellow') + c('        system specs', 't-dim'));
+        pr('  ' + c('iot / nodes', 't-yellow') + c('     telemetry feeds', 't-dim'));
+        pr('  ' + c('ping', 't-yellow') + c('            latency checker', 't-dim'));
+        pr('  ' + c('social [net]', 't-yellow') + c('     open social profile', 't-dim'));
+        pr('  ' + c('history', 't-yellow') + c('         command history', 't-dim'));
+        pr('  ' + c('date', 't-yellow') + c('            current date/time', 't-dim'));
+        pr('  ' + c('theme', 't-yellow') + c('           toggle light/dark', 't-dim'));
+        pr('  ' + c('matrix', 't-magenta') + c('          easter egg 🐰', 't-dim'));
+        pr('  ' + c('clear', 't-yellow') + c('           clear output', 't-dim'));
         pr('');
       },
       about: function(){
@@ -832,20 +839,148 @@ const bodyInject = `<!-- PORTFOLIO_INJECT_BODY_START -->
         pr(c('  │', 't-dim'));
         pr(c('  └─────────────────────────────────────', 't-dim'));
       },
-      contact: function(){
-        pr(c('  ┌─ CONTACT ───────────────────────────', 't-dim'));
-        pr(c('  │', 't-dim'));
-        pr(c('  │ ', 't-dim') + c('✉  email    ', 't-yellow') + c(d.email||DEF.email, 't-green'));
-        pr(c('  │ ', 't-dim') + c('⚡ github   ', 't-yellow') + c(d.github||DEF.github, 't-cyan'));
-        pr(c('  │ ', 't-dim') + c('🔗 linkedin ', 't-yellow') + c(d.linkedin||DEF.linkedin, 't-blue'));
-        pr(c('  │', 't-dim'));
-        pr(c('  └─────────────────────────────────────', 't-dim'));
+      contact: function(args){
+        if (!args) {
+          pr(c('  ┌─ CONTACT ───────────────────────────', 't-dim'));
+          pr(c('  │', 't-dim'));
+          pr(c('  │ ', 't-dim') + c('✉  email    ', 't-yellow') + c(d.email||DEF.email, 't-green'));
+          pr(c('  │ ', 't-dim') + c('⚡ github   ', 't-yellow') + c(d.github||DEF.github, 't-cyan'));
+          pr(c('  │ ', 't-dim') + c('🔗 linkedin ', 't-yellow') + c(d.linkedin||DEF.linkedin, 't-blue'));
+          pr(c('  │', 't-dim'));
+          pr(c('  └─────────────────────────────────────', 't-dim'));
+          pr('');
+          pr(c('  💡 Tip: You can leave a direct message via this terminal!', 't-dim'));
+          pr(c('     Type: ', 't-dim') + c('contact [your message text]', 't-yellow'));
+        } else {
+          pr(c('  ✉ Appending message to secure Supabase storage...', 't-cyan'));
+          apiFetch('get-settings')
+            .then(function(currentSettings) {
+              var settings = currentSettings || DEF;
+              if (!settings.messages) settings.messages = [];
+              settings.messages.push({
+                text: args,
+                timestamp: new Date().toISOString()
+              });
+              return apiFetch('save-settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(settings)
+              });
+            })
+            .then(function() {
+              pr(c('  ✓ Message sent successfully to Supabase globally!', 't-green'));
+              pr(c('  ✓ I will get back to you soon.', 't-green'));
+            })
+            .catch(function(err) {
+              console.error(err);
+              // Fallback to local storage
+              var saved = localStorage.getItem('portfolio_settings');
+              var data = saved ? JSON.parse(saved) : DEF;
+              if (!data.messages) data.messages = [];
+              data.messages.push({
+                text: args,
+                timestamp: new Date().toISOString()
+              });
+              localStorage.setItem('portfolio_settings', JSON.stringify(data));
+              pr(c('  ✓ Message cached locally in browser sandbox.', 't-green'));
+            });
+        }
       },
       whoami: function(){
         pr(c('  ' + (d.name||DEF.name), 't-green t-bold') + c(' — ', 't-dim') + c(d.title||DEF.title, 't-cyan'));
       },
       resume: function(){
-        pr(c('  ⚠ ', 't-yellow') + c('Resume URL not configured. Set it in the ', 't-dim') + c('admin panel', 't-cyan') + c('.', 't-dim'));
+        if(d.resumeUrl && d.resumeUrl !== '#') {
+          pr(c('  ✓ Opening resume download link...', 't-green'));
+          window.open(d.resumeUrl, '_blank');
+        } else {
+          pr(c('  ⚠ ', 't-yellow') + c('Resume URL not configured. Set it in the ', 't-dim') + c('admin panel', 't-cyan') + c('.', 't-dim'));
+        }
+      },
+      neofetch: function(){
+        var uptimeSec = Math.floor(performance.now() / 1000);
+        var min = Math.floor(uptimeSec / 60);
+        var sec = uptimeSec % 60;
+        var uptimeStr = (min > 0 ? min + 'm ' : '') + sec + 's';
+        
+        pr(c('   __  __ ____ ___ _____   ', 't-green t-bold') + c((d.name || DEF.name).toLowerCase() + '@portfolio-studio', 't-white t-bold'));
+        pr(c('  |  \\/  |  _ \\_ _|_   _|  ', 't-green t-bold') + c('  ----------------------------', 't-dim'));
+        pr(c('  | |\\/| | | | | |  | |    ', 't-green t-bold') + c('  OS: ', 't-cyan') + c('PortfolioOS v1.2.0 (Monochrome)', 't-white'));
+        pr(c('  | |  | | |_| | |  | |    ', 't-green t-bold') + c('  Host: ', 't-cyan') + c('ESP32-WROOM-32D Cluster', 't-white'));
+        pr(c('  |_|  |_|____/___| |_|    ', 't-green t-bold') + c('  Kernel: ', 't-cyan') + c('Vite + Canvas Shader Engine', 't-white'));
+        pr('                           ' + c('  Uptime: ', 't-cyan') + c(uptimeStr, 't-white'));
+        pr('                           ' + c('  Shell: ', 't-cyan') + c('Interactive JS Sandbox v1.2', 't-white'));
+        pr('                           ' + c('  Resolution: ', 't-cyan') + c(window.innerWidth + 'x' + window.innerHeight, 't-white'));
+        pr('                           ' + c('  Memory: ', 't-cyan') + c('520 KB SRAM / 4 MB Flash', 't-white'));
+        pr('                           ' + c('  Storage: ', 't-cyan') + c('Supabase Realtime JSONB', 't-white'));
+        pr('                           ' + c('  WebGL Reveal: ', 't-cyan') + c('ACTIVE (Touch Mask Reveal)', 't-white'));
+        pr('');
+      },
+      sudo: function(args){
+        pr(c('  guest is not in the sudoers file. This incident will be reported.', 't-red'));
+      },
+      iot: function(){
+        pr(c('  [IoT] Querying ESP32 Microcontroller Cluster...', 't-cyan'));
+        pr('');
+        pr(c('  Node ID   | Status  | Sensor      | Reading    | Latency', 't-white t-bold'));
+        pr(c('  --------- | ------- | ----------- | ---------- | -------', 't-dim'));
+        pr('  node-01   | ' + c('ONLINE ', 't-green') + ' | Temp/Humid  | 24.5°C/52% | 14ms');
+        pr('  node-02   | ' + c('ONLINE ', 't-green') + ' | Light/LDR   | 720 lm     | 18ms');
+        pr('  node-03   | ' + c('ONLINE ', 't-green') + ' | WebGL Shdr  | ACTIVE     | 8ms');
+        pr('  node-04   | ' + c('OFFLINE', 't-red') + '   | Relay-Ctrl  | N/A        | TIMEOUT');
+        pr('');
+        pr(c('  [IoT] Telemetry stream fully synced. MQTT broker active.', 't-dim'));
+      },
+      nodes: function(){
+        cmds.iot();
+      },
+      ping: function(){
+        pr(c('  PING wxmgfmzthzqktkxwmnyw.supabase.co (port 443)...', 't-cyan'));
+        var start = Date.now();
+        fetch('/api/get-settings')
+          .then(function() {
+            var elapsed = Date.now() - start;
+            pr(c('  64 bytes from supabase.co: time=' + elapsed + 'ms', 't-green'));
+          })
+          .catch(function() {
+            var elapsed = Date.now() - start;
+            pr(c('  64 bytes from supabase.co: time=' + elapsed + 'ms (offline cached)', 't-yellow'));
+          });
+      },
+      history: function(){
+        if (hist.length === 0) {
+          pr(c('  No command history.', 't-dim'));
+        } else {
+          var reversed = [].concat(hist).reverse();
+          reversed.forEach(function(cmdLine, idx) {
+            pr('  ' + c(String(idx + 1), 't-dim') + '  ' + c(cmdLine, 't-white'));
+          });
+        }
+      },
+      date: function(){
+        pr(c('  Current System Date: ' + new Date().toString(), 't-cyan'));
+      },
+      social: function(args){
+        if (!args) {
+          pr(c('  Usage: ', 't-dim') + c('social [github|linkedin|email]', 't-yellow'));
+          pr('  ' + c('social github', 't-cyan') + '    - open GitHub profile');
+          pr('  ' + c('social linkedin', 't-cyan') + '  - open LinkedIn profile');
+          pr('  ' + c('social email', 't-cyan') + '     - send an email');
+        } else {
+          var platform = args.toLowerCase().trim();
+          if (platform === 'github') {
+            pr(c('  ✓ Opening GitHub profile in a new tab...', 't-green'));
+            window.open(d.github || DEF.github, '_blank');
+          } else if (platform === 'linkedin') {
+            pr(c('  ✓ Opening LinkedIn profile in a new tab...', 't-green'));
+            window.open(d.linkedin || DEF.linkedin, '_blank');
+          } else if (platform === 'email') {
+            pr(c('  ✓ Launching default mail client...', 't-green'));
+            window.location.href = 'mailto:' + (d.email || DEF.email);
+          } else {
+            pr(c('  ✗ Error: Platform not recognized. Choose: github, linkedin, email.', 't-red'));
+          }
+        }
       },
       theme: function(){
         var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -884,7 +1019,7 @@ const bodyInject = `<!-- PORTFOLIO_INJECT_BODY_START -->
             isWaitingForPassword = false;
             inp.type = 'text';
             inp.placeholder = 'Type a command...';
-            navigateToAdmin();
+            navigateToAdmin('tk=authenticated_terminal_session');
           } else {
             pr(c('  ✗ Access Denied: Invalid passcode sequence.', 't-red'));
             isWaitingForPassword = false;
@@ -896,8 +1031,12 @@ const bodyInject = `<!-- PORTFOLIO_INJECT_BODY_START -->
 
         hist.unshift(raw); hIdx = -1;
         pr(c('❯ ', 't-green t-bold') + c(raw, 't-white'));
-        var cmd = raw.toLowerCase().split(' ')[0];
-        if(cmds[cmd]) cmds[cmd]();
+        
+        var parts = raw.split(' ');
+        var cmd = parts[0].toLowerCase();
+        var args = parts.slice(1).join(' ');
+
+        if(cmds[cmd]) cmds[cmd](args);
         else pr(c('  ✗ ', 't-red') + c('command not found: ', 't-dim') + c(cmd, 't-red') + c('. type ', 't-dim') + c('help', 't-yellow'));
       } else if(e.key==='ArrowUp'){
         e.preventDefault();
