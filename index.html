@@ -552,29 +552,8 @@ body {
         <p id="pf-bio1" style="font-size:14px; line-height:1.9; color:var(--text-secondary); margin:0 0 20px;"></p>
         <p id="pf-bio2" style="font-size:14px; line-height:1.9; color:var(--text-secondary); margin:0;"></p>
       </div>
-      <div style="display:flex; flex-direction:column; gap:24px; padding-top:4px;">
-        <div>
-          <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-            <span style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.12em; color:var(--text-secondary);">Frontend / WebGL</span>
-            <span id="pf-s1v" class="font-mono" style="font-size:10px; font-weight:700;"></span>
-          </div>
-          <div class="pf-skill-track"><div id="pf-s1b" class="pf-skill-fill" style="width:0%"></div></div>
-        </div>
-        <div>
-          <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-            <span style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.12em; color:var(--text-secondary);">Backend / Web3</span>
-            <span id="pf-s2v" class="font-mono" style="font-size:10px; font-weight:700;"></span>
-          </div>
-          <div class="pf-skill-track"><div id="pf-s2b" class="pf-skill-fill" style="width:0%"></div></div>
-        </div>
-        <div>
-          <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-            <span style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.12em; color:var(--text-secondary);">Hardware / IoT</span>
-            <span id="pf-s3v" class="font-mono" style="font-size:10px; font-weight:700;"></span>
-          </div>
-          <div class="pf-skill-track"><div id="pf-s3b" class="pf-skill-fill" style="width:0%"></div></div>
-        </div>
-      </div>
+      <div id="pf-skills-container" style="display:flex; flex-direction:column; gap:24px; padding-top:4px;"></div>
+
     </div>
   </section>
 
@@ -648,7 +627,11 @@ body {
     pitch: "Developing high-fidelity interactive architectures, custom canvas WebGL simulations, and robust embedded IoT networks where low-level engineering meets visual high art.",
     bio1: "My engineering philosophy bridges two worlds: visual design excellence and low-level hardware-software performance. I thrive on bringing complex visual animations to life with spring physics and fluid math, and building responsive, low-latency applications that respond instantly to touch, gesture, and telemetry streams.",
     bio2: "Whether orchestrating thousands of active nodes inside an interactive outline canvas editor, mapping out real-time telemetry streams over MQTT/WebSockets, or soldering customized ESP32 microcontrollers to automate physical space nodes, I am driven by the pursuit of bulletproof, pixel-perfect, and ultra-high performance user environments.",
-    skill1: "92", skill2: "84", skill3: "89",
+    skills: [
+      { label: "Frontend / WebGL", value: 92, color: "green" },
+      { label: "Backend / Web3",   value: 84, color: "cyan"  },
+      { label: "Hardware / IoT",   value: 89, color: "orange"}
+    ],
     email: "iamudt19@gmail.com",
     github: "https://github.com/Iamudt19",
     linkedin: "https://linkedin.com",
@@ -706,16 +689,37 @@ body {
     $('pf-bio1').textContent = d.bio1 || DEF.bio1;
     $('pf-bio2').textContent = d.bio2 || DEF.bio2;
 
-    // Skills
-    var s1 = d.skill1 || DEF.skill1, s2 = d.skill2 || DEF.skill2, s3 = d.skill3 || DEF.skill3;
-    $('pf-s1v').textContent = s1 + '%';
-    $('pf-s2v').textContent = s2 + '%';
-    $('pf-s3v').textContent = s3 + '%';
-    setTimeout(function(){
-      $('pf-s1b').style.width = s1 + '%';
-      $('pf-s2b').style.width = s2 + '%';
-      $('pf-s3b').style.width = s3 + '%';
-    }, 200);
+    // Skills — dynamic from saved settings
+    var skillColorMap = {
+      green:  '#22c55e',
+      cyan:   '#06b6d4',
+      orange: '#f97316',
+      purple: '#a855f7',
+      red:    '#ef4444',
+      white:  'var(--text-primary)'
+    };
+    var skills = d.skills || DEF.skills;
+    var skillsContainer = document.getElementById('pf-skills-container');
+    if (skillsContainer) {
+      skillsContainer.innerHTML = '';
+      skills.forEach(function(skill) {
+        var color = skillColorMap[skill.color] || skillColorMap.green;
+        var barEl = document.createElement('div');
+        barEl.innerHTML =
+          '<div style="display:flex;justify-content:space-between;margin-bottom:10px;">' +
+            '<span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:var(--text-secondary);">' + skill.label + '</span>' +
+            '<span class="font-mono" style="font-size:10px;font-weight:700;color:' + color + ';">' + skill.value + '%</span>' +
+          '</div>' +
+          '<div class="pf-skill-track"><div class="pf-skill-fill" data-w="' + skill.value + '" style="width:0%;background:' + color + ';"></div></div>';
+        skillsContainer.appendChild(barEl);
+      });
+      // Animate bars in
+      setTimeout(function(){
+        skillsContainer.querySelectorAll('.pf-skill-fill').forEach(function(bar){
+          bar.style.width = bar.getAttribute('data-w') + '%';
+        });
+      }, 200);
+    }
 
     // Contact
     $('pf-c-email').href = 'mailto:' + (d.email || DEF.email);
@@ -814,16 +818,19 @@ body {
       },
       skills: function(){
         pr(c('  ┌─ SKILLS ────────────────────────────', 't-dim'));
-        var s1=d.skill1||DEF.skill1, s2=d.skill2||DEF.skill2, s3=d.skill3||DEF.skill3;
-        function bar(label,val,color){
+        var skillList = d.skills || DEF.skills;
+        var termColorMap = { green:'t-green', cyan:'t-cyan', orange:'t-orange', purple:'t-magenta', red:'t-red', white:'t-white' };
+        function bar(label, val, tcolor){
           var filled = Math.round(val/5);
           var empty = 20 - filled;
           var barStr = Array(filled+1).join('█') + Array(empty+1).join('░');
-          pr(c('  │ ', 't-dim') + c(label, 't-white') + c(' ' + barStr + ' ', color) + c(val+'%', 't-white'));
+          // Pad label to fixed width for alignment
+          var padded = (label + '                  ').substring(0, 18);
+          pr(c('  │ ', 't-dim') + c(padded, 't-white') + c(' ' + barStr + ' ', tcolor) + c(val+'%', 't-white'));
         }
-        bar('Frontend / WebGL ', s1, 't-green');
-        bar('Backend / Web3   ', s2, 't-cyan');
-        bar('Hardware / IoT   ', s3, 't-orange');
+        skillList.forEach(function(s){
+          bar(s.label, s.value, termColorMap[s.color] || 't-green');
+        });
         pr(c('  └─────────────────────────────────────', 't-dim'));
       },
       projects: function(){
