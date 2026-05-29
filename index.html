@@ -546,6 +546,7 @@ body {
     <div style="display:flex; gap:10px; justify-content:center; margin-top:36px; flex-wrap:wrap;">
       <a id="pf-btn-github" href="#" target="_blank" class="pf-btn pf-btn-white">GitHub ↗</a>
       <a id="pf-btn-linkedin" href="#" target="_blank" class="pf-btn pf-btn-outline">LinkedIn</a>
+      <a id="pf-btn-instagram" href="#" target="_blank" class="pf-btn pf-btn-outline">Instagram</a>
       <a id="pf-btn-email" href="#" class="pf-btn pf-btn-outline">Contact</a>
     </div>
   </section>
@@ -612,6 +613,7 @@ body {
       <a id="pf-c-email" href="#" class="pf-btn pf-btn-white">✉ Email</a>
       <a id="pf-c-github" href="#" target="_blank" class="pf-btn pf-btn-outline">GitHub</a>
       <a id="pf-c-linkedin" href="#" target="_blank" class="pf-btn pf-btn-outline">LinkedIn</a>
+      <a id="pf-c-instagram" href="#" target="_blank" class="pf-btn pf-btn-outline">Instagram</a>
     </div>
   </section>
 
@@ -661,6 +663,7 @@ body {
     email: "iamudt19@gmail.com",
     github: "https://github.com/Iamudt19",
     linkedin: "https://linkedin.com",
+    instagram: "https://www.instagram.com/_iamudit_02/",
     projects: [
       {prefix:"/01 · EDITOR TOOLBOX",title:"Chaptr",desc:"A premium collaborative markdown editor and screenplay outline sandbox facilitating structured creative drafts without distractions.",tags:"React, Next.js, Slate.js, Tailwind",img:"",codeLink:"https://github.com/Iamudt19/Chaptr",demoLink:"https://github.com/Iamudt19/Chaptr"},
       {prefix:"/02 · AGENT ORCHESTRATION",title:"Antigravity AI",desc:"An agentic workspace visualization dashboard orchestrating background nodes, running parallel sandboxed developer tasks, and tracking multi-agent pipelines.",tags:"Node.js, WebSockets, Tailwind, Docker",img:"",codeLink:"",demoLink:""},
@@ -700,6 +703,7 @@ body {
     $('pf-pitch').textContent = d.pitch || DEF.pitch;
     $('pf-btn-github').href = d.github || DEF.github;
     $('pf-btn-linkedin').href = d.linkedin || DEF.linkedin;
+    $('pf-btn-instagram').href = d.instagram || 'https://www.instagram.com/_iamudit_02/';
     $('pf-btn-email').href = 'mailto:' + (d.email || DEF.email);
     $('pf-footer').textContent = d.name || DEF.name;
 
@@ -759,6 +763,7 @@ body {
     $('pf-c-email').textContent = '✉ ' + (d.email || DEF.email);
     $('pf-c-github').href = d.github || DEF.github;
     $('pf-c-linkedin').href = d.linkedin || DEF.linkedin;
+    $('pf-c-instagram').href = d.instagram || 'https://www.instagram.com/_iamudit_02/';
 
     // Projects
     var pg = $('pf-projects'); pg.innerHTML = '';
@@ -851,10 +856,6 @@ body {
         pr('  ' + c('contact [msg]', 't-yellow') + c('   send feedback / info', 't-dim'));
         pr('  ' + c('whoami', 't-yellow') + c('          identity tagline', 't-dim'));
         pr('  ' + c('resume', 't-yellow') + c('          download link', 't-dim'));
-        pr('  ' + c('neofetch', 't-yellow') + c('        system specs', 't-dim'));
-        pr('  ' + c('iot / nodes', 't-yellow') + c('     telemetry feeds', 't-dim'));
-        pr('  ' + c('ping', 't-yellow') + c('            latency checker', 't-dim'));
-        pr('  ' + c('social [net]', 't-yellow') + c('     open social profile', 't-dim'));
         pr('  ' + c('history', 't-yellow') + c('         command history', 't-dim'));
         pr('  ' + c('date', 't-yellow') + c('            current date/time', 't-dim'));
         pr('  ' + c('theme', 't-yellow') + c('           toggle light/dark', 't-dim'));
@@ -903,9 +904,10 @@ body {
         if (!args) {
           pr(c('  ┌─ CONTACT ───────────────────────────', 't-dim'));
           pr(c('  │', 't-dim'));
-          pr(c('  │ ', 't-dim') + c('✉  email    ', 't-yellow') + c(d.email||DEF.email, 't-green'));
-          pr(c('  │ ', 't-dim') + c('⚡ github   ', 't-yellow') + c(d.github||DEF.github, 't-cyan'));
-          pr(c('  │ ', 't-dim') + c('🔗 linkedin ', 't-yellow') + c(d.linkedin||DEF.linkedin, 't-blue'));
+          pr(c('  │ ', 't-dim') + c('✉  email     ', 't-yellow') + c(d.email||DEF.email, 't-green'));
+          pr(c('  │ ', 't-dim') + c('⚡ github    ', 't-yellow') + c(d.github||DEF.github, 't-cyan'));
+          pr(c('  │ ', 't-dim') + c('🔗 linkedin  ', 't-yellow') + c(d.linkedin||DEF.linkedin, 't-blue'));
+          pr(c('  │ ', 't-dim') + c('📸 instagram ', 't-yellow') + c(d.instagram||'https://www.instagram.com/_iamudit_02/', 't-magenta'));
           pr(c('  │', 't-dim'));
           pr(c('  └─────────────────────────────────────', 't-dim'));
           pr('');
@@ -957,56 +959,6 @@ body {
           pr(c('  ⚠ ', 't-yellow') + c('Resume URL not configured. Set it in the ', 't-dim') + c('admin panel', 't-cyan') + c('.', 't-dim'));
         }
       },
-      neofetch: function(){
-        var uptimeSec = Math.floor(performance.now() / 1000);
-        var min = Math.floor(uptimeSec / 60);
-        var sec = uptimeSec % 60;
-        var uptimeStr = (min > 0 ? min + 'm ' : '') + sec + 's';
-        
-        pr(c('   __  __ ____ ___ _____   ', 't-green t-bold') + c((d.name || DEF.name).toLowerCase() + '@portfolio-studio', 't-white t-bold'));
-        pr(c('  |  \/  |  _ \_ _|_   _|  ', 't-green t-bold') + c('  ----------------------------', 't-dim'));
-        pr(c('  | |\/| | | | | |  | |    ', 't-green t-bold') + c('  OS: ', 't-cyan') + c('PortfolioOS v1.2.0 (Monochrome)', 't-white'));
-        pr(c('  | |  | | |_| | |  | |    ', 't-green t-bold') + c('  Host: ', 't-cyan') + c('ESP32-WROOM-32D Cluster', 't-white'));
-        pr(c('  |_|  |_|____/___| |_|    ', 't-green t-bold') + c('  Kernel: ', 't-cyan') + c('Vite + Canvas Shader Engine', 't-white'));
-        pr('                           ' + c('  Uptime: ', 't-cyan') + c(uptimeStr, 't-white'));
-        pr('                           ' + c('  Shell: ', 't-cyan') + c('Interactive JS Sandbox v1.2', 't-white'));
-        pr('                           ' + c('  Resolution: ', 't-cyan') + c(window.innerWidth + 'x' + window.innerHeight, 't-white'));
-        pr('                           ' + c('  Memory: ', 't-cyan') + c('520 KB SRAM / 4 MB Flash', 't-white'));
-        pr('                           ' + c('  Storage: ', 't-cyan') + c('Supabase Realtime JSONB', 't-white'));
-        pr('                           ' + c('  WebGL Reveal: ', 't-cyan') + c('ACTIVE (Touch Mask Reveal)', 't-white'));
-        pr('');
-      },
-      sudo: function(args){
-        pr(c('  guest is not in the sudoers file. This incident will be reported.', 't-red'));
-      },
-      iot: function(){
-        pr(c('  [IoT] Querying ESP32 Microcontroller Cluster...', 't-cyan'));
-        pr('');
-        pr(c('  Node ID   | Status  | Sensor      | Reading    | Latency', 't-white t-bold'));
-        pr(c('  --------- | ------- | ----------- | ---------- | -------', 't-dim'));
-        pr('  node-01   | ' + c('ONLINE ', 't-green') + ' | Temp/Humid  | 24.5°C/52% | 14ms');
-        pr('  node-02   | ' + c('ONLINE ', 't-green') + ' | Light/LDR   | 720 lm     | 18ms');
-        pr('  node-03   | ' + c('ONLINE ', 't-green') + ' | WebGL Shdr  | ACTIVE     | 8ms');
-        pr('  node-04   | ' + c('OFFLINE', 't-red') + '   | Relay-Ctrl  | N/A        | TIMEOUT');
-        pr('');
-        pr(c('  [IoT] Telemetry stream fully synced. MQTT broker active.', 't-dim'));
-      },
-      nodes: function(){
-        cmds.iot();
-      },
-      ping: function(){
-        pr(c('  PING wxmgfmzthzqktkxwmnyw.supabase.co (port 443)...', 't-cyan'));
-        var start = Date.now();
-        fetch('/api/get-settings')
-          .then(function() {
-            var elapsed = Date.now() - start;
-            pr(c('  64 bytes from supabase.co: time=' + elapsed + 'ms', 't-green'));
-          })
-          .catch(function() {
-            var elapsed = Date.now() - start;
-            pr(c('  64 bytes from supabase.co: time=' + elapsed + 'ms (offline cached)', 't-yellow'));
-          });
-      },
       history: function(){
         if (hist.length === 0) {
           pr(c('  No command history.', 't-dim'));
@@ -1019,28 +971,6 @@ body {
       },
       date: function(){
         pr(c('  Current System Date: ' + new Date().toString(), 't-cyan'));
-      },
-      social: function(args){
-        if (!args) {
-          pr(c('  Usage: ', 't-dim') + c('social [github|linkedin|email]', 't-yellow'));
-          pr('  ' + c('social github', 't-cyan') + '    - open GitHub profile');
-          pr('  ' + c('social linkedin', 't-cyan') + '  - open LinkedIn profile');
-          pr('  ' + c('social email', 't-cyan') + '     - send an email');
-        } else {
-          var platform = args.toLowerCase().trim();
-          if (platform === 'github') {
-            pr(c('  ✓ Opening GitHub profile in a new tab...', 't-green'));
-            window.open(d.github || DEF.github, '_blank');
-          } else if (platform === 'linkedin') {
-            pr(c('  ✓ Opening LinkedIn profile in a new tab...', 't-green'));
-            window.open(d.linkedin || DEF.linkedin, '_blank');
-          } else if (platform === 'email') {
-            pr(c('  ✓ Launching default mail client...', 't-green'));
-            window.location.href = 'mailto:' + (d.email || DEF.email);
-          } else {
-            pr(c('  ✗ Error: Platform not recognized. Choose: github, linkedin, email.', 't-red'));
-          }
-        }
       },
       theme: function(){
         var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
