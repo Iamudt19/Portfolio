@@ -510,8 +510,12 @@
         const code = card.querySelector('.cfg-proj-code').value.trim();
         const demo = card.querySelector('.cfg-proj-demo').value.trim();
         
+        // Convert Google Drive share URLs to direct download URLs
+        const driveUrlPattern = /https?:\/\/drive\.google\.com\/file\/d\/([^/]+)\/?.*/i;
+        const imgUrl = img && driveUrlPattern.test(img) ? `https://drive.google.com/uc?export=download&id=${img.match(driveUrlPattern)[1]}` : img;
+        
         if (title) {
-          projects.push({ prefix, title, desc, tags, img, codeLink: code, demoLink: demo });
+          projects.push({ prefix, title, desc, tags, img: imgUrl, codeLink: code, demoLink: demo });
         }
       });
       return projects;
