@@ -328,6 +328,28 @@ body {
   border-radius: 12px;
   padding: 28px;
   transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.pf-project:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-hover);
+  transform: translateY(-2px);
+}
+
+.project-screenshot-preview {
+  position: absolute;
+  inset: 0;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.pf-project:hover .project-screenshot-preview {
+  opacity: 1;
 }
 .pf-project:hover {
   background: var(--bg-card-hover);
@@ -436,8 +458,9 @@ body {
   font-size: clamp(100px, 14vw, 200px);
   font-weight: 900;
   text-transform: uppercase;
-  color: var(--text-primary);
-  opacity: 0.08;
+  /* Default light mode: dark text visible on white background */
+  color: #000000;
+  opacity: 0.07;
   letter-spacing: 0.05em;
   animation: hero-bg-loop var(--hero-bg-speed, 45s) linear infinite;
   white-space: nowrap;
@@ -445,10 +468,22 @@ body {
   user-select: none;
   padding-bottom: 12px;
 }
+/* Dark mode: white text visible on dark background */
+[data-theme="dark"] .pf-hero-bg-text {
+  color: #ffffff;
+  opacity: 0.07;
+}
+/* Override Framer's hardcoded inline "html body { background: rgb(255,255,255) }" in dark mode */
+[data-theme="dark"] body,
+[data-theme="dark"] html body {
+  background: #000000 !important;
+  background-color: #000000 !important;
+}
 @keyframes hero-bg-loop {
   0% { transform: translate3d(-50%, 0, 0); }
   100% { transform: translate3d(0, 0, 0); }
 }
+
 </style>
 <!-- PORTFOLIO_INJECT_HEAD_END -->
 </head>
@@ -725,6 +760,13 @@ body {
         '<p style="font-size:13px;line-height:1.7;color:var(--text-secondary);margin:0 0 14px;">'+(p.desc||'')+'</p>'+
         '<div style="margin-bottom:14px;">'+tags+'</div>'+
         '<div style="display:flex;gap:8px;">'+links+'</div>';
+      // Add hover preview image if available
+      if(p.img && p.img.trim()) {
+        var previewImg = document.createElement('img');
+        previewImg.src = p.img.trim();
+        previewImg.className = 'project-screenshot-preview';
+        c.appendChild(previewImg);
+      }
       pg.appendChild(c);
     });
 
