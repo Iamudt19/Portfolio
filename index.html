@@ -905,7 +905,12 @@ body {
           pr(c('  ❯ ', 't-cyan') + c('••••••••', 't-dim'));
           if(entered === '2026\\'){
             pr(c('  ✓ ', 't-green') + c('Access granted — opening admin dashboard...', 't-white'));
-            setTimeout(function(){ window.open('/admin/', '_blank'); }, 400);
+            setTimeout(function(){
+              // Generate a one-time session token and store it so admin page can verify
+              var tk = Math.random().toString(36).slice(2) + Date.now().toString(36);
+              sessionStorage.setItem('admin_terminal_tk', tk);
+              window.open('/admin/?tk=' + tk, '_blank');
+            }, 400);
           } else {
             pr(c('  ✗ ', 't-red') + c('Incorrect password. Access denied.', 't-dim'));
           }

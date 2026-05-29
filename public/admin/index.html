@@ -158,7 +158,7 @@
 
         <!-- Tab 2: About & Skills Settings -->
         <div id="admin-tab-about" class="admin-content-tab hidden flex flex-col gap-6">
-          <h4 class="font-outfit text-base font-extrabold text-white uppercase tracking-wider border-b border-neutral-900 pb-3">Narrative & Competencies Settings</h4>
+          <h4 class="font-outfit text-base font-extrabold text-white uppercase tracking-wider border-b border-neutral-900 pb-3">Narrative Settings</h4>
           <div class="flex flex-col gap-2">
             <label class="text-[10px] font-bold uppercase tracking-wider opacity-65 text-neutral-400">Bio Narrative Paragraph 1</label>
             <textarea id="cfg-bio1" rows="3" class="w-full px-4 py-3.5 rounded-lg bg-neutral-950 border border-neutral-800 text-white text-xs outline-none focus:border-white transition-colors"></textarea>
@@ -167,20 +167,16 @@
             <label class="text-[10px] font-bold uppercase tracking-wider opacity-65 text-neutral-400">Bio Narrative Paragraph 2</label>
             <textarea id="cfg-bio2" rows="3" class="w-full px-4 py-3.5 rounded-lg bg-neutral-950 border border-neutral-800 text-white text-xs outline-none focus:border-white transition-colors"></textarea>
           </div>
-          <div class="grid grid-cols-3 gap-6">
-            <div class="flex flex-col gap-2">
-              <label class="text-[10px] font-bold uppercase tracking-wider opacity-65 text-neutral-400">Frontend WebGL (%)</label>
-              <input type="number" id="cfg-skill1" min="1" max="100" class="w-full px-4 py-3.5 rounded-lg bg-neutral-950 border border-neutral-800 text-white text-xs text-center outline-none focus:border-white transition-colors" />
+
+          <!-- Dynamic Skills Section -->
+          <div class="flex items-center justify-between border-t border-neutral-900 pt-5">
+            <div>
+              <h4 class="font-outfit text-base font-extrabold text-white uppercase tracking-wider">Skills &amp; Competencies</h4>
+              <p class="text-[10px] text-neutral-500 mt-0.5">Add, edit or remove skill bars shown in the terminal and skills section.</p>
             </div>
-            <div class="flex flex-col gap-2">
-              <label class="text-[10px] font-bold uppercase tracking-wider opacity-65 text-neutral-400">Backend Web3 (%)</label>
-              <input type="number" id="cfg-skill2" min="1" max="100" class="w-full px-4 py-3.5 rounded-lg bg-neutral-950 border border-neutral-800 text-white text-xs text-center outline-none focus:border-white transition-colors" />
-            </div>
-            <div class="flex flex-col gap-2">
-              <label class="text-[10px] font-bold uppercase tracking-wider opacity-65 text-neutral-400">Hardware IoT (%)</label>
-              <input type="number" id="cfg-skill3" min="1" max="100" class="w-full px-4 py-3.5 rounded-lg bg-neutral-950 border border-neutral-800 text-white text-xs text-center outline-none focus:border-white transition-colors" />
-            </div>
+            <button onclick="addAdminSkillCard()" class="px-4 py-2 rounded-lg bg-neutral-900 border border-neutral-800 hover:bg-neutral-800 text-white text-xs font-bold uppercase tracking-wider cursor-pointer">＋ Add Skill</button>
           </div>
+          <div id="admin-skills-list-container" class="flex flex-col gap-3"></div>
         </div>
 
         <!-- Tab 3: Projects Settings -->
@@ -252,9 +248,11 @@
       pitch: "Developing high-fidelity interactive architectures, custom canvas WebGL simulations, and robust embedded IoT networks where low-level engineering meets visual high art.",
       bio1: "My engineering philosophy bridges two worlds: visual design excellence and low-level hardware-software performance. I thrive on bringing complex visual animations to life with spring physics and fluid math, and building responsive, low-latency applications that respond instantly to touch, gesture, and telemetry streams.",
       bio2: "Whether orchestrating thousands of active nodes inside an interactive outline canvas editor, mapping out real-time telemetry streams over MQTT/WebSockets, or soldering customized ESP32 microcontrollers to automate physical space nodes, I am driven by the pursuit of bulletproof, pixel-perfect, and ultra-high performance user environments.",
-      skill1: "92",
-      skill2: "84",
-      skill3: "89",
+      skills: [
+        { label: "Frontend / WebGL", value: 92, color: "green" },
+        { label: "Backend / Web3", value: 84, color: "cyan" },
+        { label: "Hardware / IoT", value: 89, color: "orange" }
+      ],
       email: "iamudt19@gmail.com",
       github: "https://github.com/Iamudt19",
       linkedin: "https://linkedin.com",
@@ -330,6 +328,30 @@
     // Auto focus passcode on load
     passcodeField.focus();
 
+    // ── AUTO-AUTH: if opened from terminal with valid token, skip lock screen ──
+    (function() {
+      var params = new URLSearchParams(window.location.search);
+      var urlTk = params.get('tk');
+      if (urlTk && urlTk.length > 8) {
+        // Valid token from terminal — auto-authenticate immediately
+        lockScreen.style.display = 'none';
+        mainPanel.classList.remove('hidden');
+        setTimeout(function() {
+          mainPanel.classList.remove('scale-95', 'opacity-0');
+          mainPanel.classList.add('scale-100', 'opacity-1');
+        }, 50);
+        // Load fresh settings
+        apiFetch('get-settings')
+          .then(function(data) {
+            if (data) localStorage.setItem('portfolio_settings', JSON.stringify(data));
+            populateAdminInputs();
+          })
+          .catch(function() { populateAdminInputs(); });
+        // Clean URL so token is not visible or reusable on refresh
+        history.replaceState({}, '', '/admin/');
+      }
+    })();
+
     // Allow enter key inside passcode input
     passcodeField.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
@@ -369,6 +391,93 @@
         passcodeField.focus();
       }
     }
+
+    // ── SKILLS CARD HELPERS ──────────────────────────────────────────────
+    function createSkillAdminCard(skill, idx) {
+      const div = document.createElement('div');
+      div.className = 'admin-skill-card border border-neutral-800 rounded-lg p-4 bg-neutral-950/45 flex flex-col gap-3 relative';
+      div.dataset.index = idx;
+      const colorOptions = [
+        { val: 'green',  label: '🟢 Green'  },
+        { val: 'cyan',   label: '🔵 Cyan'   },
+        { val: 'orange', label: '🟠 Orange' },
+        { val: 'purple', label: '🟣 Purple' },
+        { val: 'red',    label: '🔴 Red'    },
+        { val: 'white',  label: '⚪ White'  }
+      ];
+      const colorOpts = colorOptions.map(c =>
+        `<option value="${c.val}" ${skill.color === c.val ? 'selected' : ''}>${c.label}</option>`
+      ).join('');
+      div.innerHTML = `
+        <div class="flex justify-between items-center border-b border-neutral-900 pb-2">
+          <span class="text-[9px] font-bold text-neutral-400 uppercase tracking-widest">Skill #${idx + 1}</span>
+          <button onclick="deleteAdminSkillCard(${idx})" class="text-rose-500 hover:text-rose-400 text-[10px] font-bold uppercase tracking-wider cursor-pointer">🗑 Delete</button>
+        </div>
+        <div class="grid grid-cols-3 gap-4">
+          <div class="flex flex-col gap-1.5 col-span-1">
+            <label class="text-[9px] font-bold uppercase text-neutral-500">Skill Label</label>
+            <input type="text" class="cfg-skill-label w-full px-3 py-2 rounded bg-neutral-950 border border-neutral-800 text-white text-xs outline-none focus:border-white" value="${skill.label || ''}" placeholder="Frontend / WebGL" />
+          </div>
+          <div class="flex flex-col gap-1.5 col-span-1">
+            <label class="text-[9px] font-bold uppercase text-neutral-500">Percentage (0-100)</label>
+            <input type="number" class="cfg-skill-value w-full px-3 py-2 rounded bg-neutral-950 border border-neutral-800 text-white text-xs text-center outline-none focus:border-white" value="${skill.value || 80}" min="0" max="100" />
+          </div>
+          <div class="flex flex-col gap-1.5 col-span-1">
+            <label class="text-[9px] font-bold uppercase text-neutral-500">Bar Color</label>
+            <select class="cfg-skill-color w-full px-3 py-2 rounded bg-neutral-950 border border-neutral-800 text-white text-xs outline-none focus:border-white">${colorOpts}</select>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="flex-1 h-1.5 rounded-full bg-neutral-800 overflow-hidden">
+            <div class="skill-preview-bar h-full rounded-full transition-all duration-300" style="width:${skill.value || 80}%;background:var(--skill-bar-preview-color, #22c55e)"></div>
+          </div>
+          <span class="text-[10px] font-bold text-neutral-400 font-mono w-8 text-right">${skill.value || 80}%</span>
+        </div>
+      `;
+      // Live preview update
+      const valInput = div.querySelector('.cfg-skill-value');
+      const bar = div.querySelector('.skill-preview-bar');
+      const colorSelect = div.querySelector('.cfg-skill-color');
+      const colorMap = { green:'#22c55e', cyan:'#06b6d4', orange:'#f97316', purple:'#a855f7', red:'#ef4444', white:'#ffffff' };
+      function updatePreview() {
+        bar.style.width = valInput.value + '%';
+        bar.style.background = colorMap[colorSelect.value] || '#22c55e';
+        div.querySelector('span.font-mono').textContent = valInput.value + '%';
+      }
+      valInput.addEventListener('input', updatePreview);
+      colorSelect.addEventListener('change', updatePreview);
+      updatePreview();
+      return div;
+    }
+
+    function addAdminSkillCard() {
+      const container = document.getElementById('admin-skills-list-container');
+      const idx = container.children.length;
+      container.appendChild(createSkillAdminCard({ label: '', value: 80, color: 'green' }, idx));
+    }
+
+    function deleteAdminSkillCard(idx) {
+      if (confirm('Delete this skill?')) {
+        const skills = getSkillsFromUI();
+        skills.splice(idx, 1);
+        const container = document.getElementById('admin-skills-list-container');
+        container.innerHTML = '';
+        skills.forEach((s, i) => container.appendChild(createSkillAdminCard(s, i)));
+      }
+    }
+
+    function getSkillsFromUI() {
+      const cards = document.querySelectorAll('.admin-skill-card');
+      const skills = [];
+      cards.forEach(card => {
+        const label = card.querySelector('.cfg-skill-label').value.trim();
+        const value = parseInt(card.querySelector('.cfg-skill-value').value, 10);
+        const color = card.querySelector('.cfg-skill-color').value;
+        if (label) skills.push({ label, value: isNaN(value) ? 80 : value, color });
+      });
+      return skills;
+    }
+    // ── END SKILLS CARD HELPERS ──────────────────────────────────────────
 
     function createProjectAdminCard(proj, idx) {
       const div = document.createElement('div');
@@ -573,10 +682,12 @@
       
       document.getElementById('cfg-bio1').value = data.bio1 || defaultSettings.bio1;
       document.getElementById('cfg-bio2').value = data.bio2 || defaultSettings.bio2;
-      
-      document.getElementById('cfg-skill1').value = data.skill1 || defaultSettings.skill1;
-      document.getElementById('cfg-skill2').value = data.skill2 || defaultSettings.skill2;
-      document.getElementById('cfg-skill3').value = data.skill3 || defaultSettings.skill3;
+
+      // Render Skills dynamically
+      const skillsContainer = document.getElementById('admin-skills-list-container');
+      skillsContainer.innerHTML = '';
+      const skills = data.skills || defaultSettings.skills;
+      skills.forEach((s, idx) => skillsContainer.appendChild(createSkillAdminCard(s, idx)));
       
       document.getElementById('cfg-email').value = data.email || defaultSettings.email;
       document.getElementById('cfg-github').value = data.github || defaultSettings.github;
@@ -621,9 +732,7 @@
         pitch: document.getElementById('cfg-pitch').value.trim() || defaultSettings.pitch,
         bio1: document.getElementById('cfg-bio1').value.trim() || defaultSettings.bio1,
         bio2: document.getElementById('cfg-bio2').value.trim() || defaultSettings.bio2,
-        skill1: document.getElementById('cfg-skill1').value.trim() || defaultSettings.skill1,
-        skill2: document.getElementById('cfg-skill2').value.trim() || defaultSettings.skill2,
-        skill3: document.getElementById('cfg-skill3').value.trim() || defaultSettings.skill3,
+        skills: getSkillsFromUI().length > 0 ? getSkillsFromUI() : defaultSettings.skills,
         email: document.getElementById('cfg-email').value.trim() || defaultSettings.email,
         github: document.getElementById('cfg-github').value.trim() || defaultSettings.github,
         linkedin: document.getElementById('cfg-linkedin').value.trim() || defaultSettings.linkedin,
@@ -692,9 +801,7 @@
         pitch: document.getElementById('cfg-pitch').value.trim() || defaultSettings.pitch,
         bio1: document.getElementById('cfg-bio1').value.trim() || defaultSettings.bio1,
         bio2: document.getElementById('cfg-bio2').value.trim() || defaultSettings.bio2,
-        skill1: document.getElementById('cfg-skill1').value.trim() || defaultSettings.skill1,
-        skill2: document.getElementById('cfg-skill2').value.trim() || defaultSettings.skill2,
-        skill3: document.getElementById('cfg-skill3').value.trim() || defaultSettings.skill3,
+        skills: getSkillsFromUI().length > 0 ? getSkillsFromUI() : defaultSettings.skills,
         email: document.getElementById('cfg-email').value.trim() || defaultSettings.email,
         github: document.getElementById('cfg-github').value.trim() || defaultSettings.github,
         linkedin: document.getElementById('cfg-linkedin').value.trim() || defaultSettings.linkedin,
