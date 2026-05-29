@@ -743,6 +743,21 @@ const bodyInject = `<!-- PORTFOLIO_INJECT_BODY_START -->
     }
   }
 
+  function navigateToAdmin() {
+    var loc = window.location;
+    var path = loc.pathname;
+    if (!path.endsWith('/')) {
+      if (path.indexOf('.') !== -1) {
+        var base = path.substring(0, path.lastIndexOf('/'));
+        loc.href = loc.origin + base + '/admin/';
+      } else {
+        loc.href = loc.origin + path + '/admin/';
+      }
+    } else {
+      loc.href = loc.origin + path + 'admin/';
+    }
+  }
+
   function initTerminal(){
     var out = document.getElementById('term-out');
     var inp = document.getElementById('term-input');
@@ -851,7 +866,7 @@ const bodyInject = `<!-- PORTFOLIO_INJECT_BODY_START -->
       admin: function(){
         pr(c('  ⚡ Navigating to Studio Control Deck...', 't-cyan'));
         setTimeout(function(){
-          window.location.href = '/admin/';
+          navigateToAdmin();
         }, 800);
       },
       clear: function(){ out.innerHTML = ''; }
@@ -1008,6 +1023,14 @@ const bodyInject = `<!-- PORTFOLIO_INJECT_BODY_START -->
     initTerminal();
     initSmoothScroll();
     initHeroBgText();
+
+    var adminLink = document.querySelector('.pf-admin-link');
+    if (adminLink) {
+      adminLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        navigateToAdmin();
+      });
+    }
 
     // Asynchronously fetch fresh settings from Supabase database globally
     apiFetch('get-settings')

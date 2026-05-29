@@ -83,7 +83,7 @@
       <span id="admin-lock-error" class="text-neutral-400 text-[10px] font-bold text-center uppercase tracking-wider opacity-0 transition-opacity">Invalid passcode sequence</span>
     </div>
     <div class="flex gap-3 w-full">
-      <a href="/" class="flex-1 py-3.5 rounded-lg border border-neutral-800 text-neutral-400 text-xs font-bold uppercase hover:bg-neutral-900 cursor-pointer flex items-center justify-center no-underline">Exit to Site</a>
+      <a href="#" onclick="event.preventDefault(); navigateBackToSite();" class="flex-1 py-3.5 rounded-lg border border-neutral-800 text-neutral-400 text-xs font-bold uppercase hover:bg-neutral-900 cursor-pointer flex items-center justify-center no-underline">Exit to Site</a>
       <button onclick="validateAdminPasscode()" class="flex-1 py-3.5 rounded-lg btn-primary text-xs font-bold uppercase cursor-pointer">Authenticate</button>
     </div>
   </div>
@@ -100,7 +100,7 @@
           <p class="text-[10px] text-neutral-500 uppercase tracking-widest mt-0.5">Admin Customizer Dashboard (/admin)</p>
         </div>
       </div>
-      <a href="/" class="px-4 py-2 rounded-full bg-neutral-900 border border-neutral-800 text-white text-xs font-bold tracking-wider hover:bg-neutral-800 transition-colors flex items-center justify-center no-underline">View Portfolio</a>
+      <a href="#" onclick="event.preventDefault(); navigateBackToSite();" class="px-4 py-2 rounded-full bg-neutral-900 border border-neutral-800 text-white text-xs font-bold tracking-wider hover:bg-neutral-800 transition-colors flex items-center justify-center no-underline">View Portfolio</a>
     </div>
 
     <!-- Panel Columns -->
@@ -774,14 +774,21 @@
       .finally(() => {
         setTimeout(() => {
           toast.classList.remove('show');
-          window.location.href = "/";
+          navigateBackToSite();
         }, 2000);
       });
     }
 
+    function navigateBackToSite() {
+      var loc = window.location;
+      var path = loc.pathname;
+      var newPath = path.replace(/\/admin\/?$/, '/');
+      loc.href = loc.origin + newPath;
+    }
+
     function discardChanges() {
       if (confirm('Discard all unsaved customizations?')) {
-        window.location.href = "/";
+        navigateBackToSite();
       }
     }
 
@@ -794,7 +801,7 @@
         toast.classList.add('show');
         setTimeout(() => {
           toast.classList.remove('show');
-          window.location.href = "/";
+          navigateBackToSite();
         }, 2000);
       }
     }
