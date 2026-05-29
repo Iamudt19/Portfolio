@@ -884,9 +884,7 @@ const bodyInject = `<!-- PORTFOLIO_INJECT_BODY_START -->
             isWaitingForPassword = false;
             inp.type = 'text';
             inp.placeholder = 'Type a command...';
-            setTimeout(function(){
-              navigateToAdmin();
-            }, 800);
+            navigateToAdmin();
           } else {
             pr(c('  ✗ Access Denied: Invalid passcode sequence.', 't-red'));
             isWaitingForPassword = false;
