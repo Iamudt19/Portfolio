@@ -561,7 +561,7 @@ body {
         <p id="pf-bio1" style="font-size:14px; line-height:1.9; color:var(--text-secondary); margin:0 0 20px;"></p>
         <p id="pf-bio2" style="font-size:14px; line-height:1.9; color:var(--text-secondary); margin:0;"></p>
       </div>
-      <div style="display:flex; flex-direction:column; gap:24px; padding-top:4px;">
+      <div id="pf-skills-container" style="display:flex; flex-direction:column; gap:24px; padding-top:4px;">
         <div>
           <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
             <span style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.12em; color:var(--text-secondary);">Frontend / WebGL</span>
@@ -660,6 +660,11 @@ body {
     bio1: "My engineering philosophy bridges two worlds: visual design excellence and low-level hardware-software performance. I thrive on bringing complex visual animations to life with spring physics and fluid math, and building responsive, low-latency applications that respond instantly to touch, gesture, and telemetry streams.",
     bio2: "Whether orchestrating thousands of active nodes inside an interactive outline canvas editor, mapping out real-time telemetry streams over MQTT/WebSockets, or soldering customized ESP32 microcontrollers to automate physical space nodes, I am driven by the pursuit of bulletproof, pixel-perfect, and ultra-high performance user environments.",
     skill1: "92", skill2: "84", skill3: "89",
+    skills: [
+      { label: "Frontend / WebGL", value: 92, color: "green" },
+      { label: "Backend / Web3", value: 84, color: "cyan" },
+      { label: "Hardware / IoT", value: 89, color: "orange" }
+    ],
     email: "iamudt19@gmail.com",
     github: "https://github.com/Iamudt19",
     linkedin: "https://linkedin.com",
@@ -748,15 +753,50 @@ body {
     $('pf-bio2').textContent = d.bio2 || DEF.bio2;
 
     // Skills
-    var s1 = d.skill1 || DEF.skill1, s2 = d.skill2 || DEF.skill2, s3 = d.skill3 || DEF.skill3;
-    $('pf-s1v').textContent = s1 + '%';
-    $('pf-s2v').textContent = s2 + '%';
-    $('pf-s3v').textContent = s3 + '%';
-    setTimeout(function(){
-      $('pf-s1b').style.width = s1 + '%';
-      $('pf-s2b').style.width = s2 + '%';
-      $('pf-s3b').style.width = s3 + '%';
-    }, 200);
+    var skillsArr = [];
+    if (Array.isArray(d.skills) && d.skills.length) {
+      skillsArr = d.skills;
+    } else {
+      skillsArr = [
+        { label: 'Frontend / WebGL', value: d.skill1 || DEF.skill1, color: 'green' },
+        { label: 'Backend / Web3', value: d.skill2 || DEF.skill2, color: 'cyan' },
+        { label: 'Hardware / IoT', value: d.skill3 || DEF.skill3, color: 'orange' }
+      ];
+    }
+    var skillsContainer = $('pf-skills-container');
+    if (skillsContainer) {
+      skillsContainer.innerHTML = '';
+      skillsArr.forEach(function(skill, index) {
+        var skillDiv = document.createElement('div');
+        var fillStyle = 'background-color: var(--text-primary) !important;';
+        if (skill.color) {
+          if (skill.color === 'green') fillStyle = 'background-color: var(--term-green) !important;';
+          else if (skill.color === 'cyan') fillStyle = 'background-color: var(--term-cyan) !important;';
+          else if (skill.color === 'yellow') fillStyle = 'background-color: var(--term-yellow) !important;';
+          else if (skill.color === 'orange') fillStyle = 'background-color: var(--term-orange) !important;';
+          else if (skill.color === 'red') fillStyle = 'background-color: var(--term-red) !important;';
+          else if (skill.color === 'magenta' || skill.color === 'purple') fillStyle = 'background-color: var(--term-magenta) !important;';
+          else if (skill.color === 'blue') fillStyle = 'background-color: var(--term-blue) !important;';
+          else if (skill.color === 'white') fillStyle = 'background-color: var(--term-white) !important;';
+        }
+
+        skillDiv.innerHTML = [
+          '  <div style="display:flex; justify-content:space-between; margin-bottom:10px;">',
+          '    <span style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.12em; color:var(--text-secondary);">' + skill.label + '</span>',
+          '    <span id="pf-s' + index + 'v" class="font-mono" style="font-size:10px; font-weight:700;">0%</span>',
+          '  </div>',
+          '  <div class="pf-skill-track"><div id="pf-s' + index + 'b" class="pf-skill-fill" style="width:0%; ' + fillStyle + '"></div></div>'
+        ].join(' ');
+        skillsContainer.appendChild(skillDiv);
+
+        setTimeout(function() {
+          var valEl = $('pf-s' + index + 'v');
+          var barEl = $('pf-s' + index + 'b');
+          if (valEl) valEl.textContent = skill.value + '%';
+          if (barEl) barEl.style.width = skill.value + '%';
+        }, 100 + (index * 50));
+      });
+    }
 
     // Contact
     $('pf-c-email').href = 'mailto:' + (d.email || DEF.email);
@@ -875,16 +915,38 @@ body {
       },
       skills: function(){
         pr(c('  ┌─ SKILLS ────────────────────────────', 't-dim'));
-        var s1=d.skill1||DEF.skill1, s2=d.skill2||DEF.skill2, s3=d.skill3||DEF.skill3;
+        var skillsArr = [];
+        if (Array.isArray(d.skills) && d.skills.length) {
+          skillsArr = d.skills;
+        } else {
+          skillsArr = [
+            { label: 'Frontend / WebGL', value: d.skill1 || DEF.skill1, color: 'green' },
+            { label: 'Backend / Web3', value: d.skill2 || DEF.skill2, color: 'cyan' },
+            { label: 'Hardware / IoT', value: d.skill3 || DEF.skill3, color: 'orange' }
+          ];
+        }
         function bar(label,val,color){
           var filled = Math.round(val/5);
           var empty = 20 - filled;
           var barStr = Array(filled+1).join('█') + Array(empty+1).join('░');
-          pr(c('  │ ', 't-dim') + c(label, 't-white') + c(' ' + barStr + ' ', color) + c(val+'%', 't-white'));
+          var paddedLabel = label;
+          if (paddedLabel.length < 20) {
+            paddedLabel = paddedLabel + Array(20 - paddedLabel.length + 1).join(' ');
+          } else {
+            paddedLabel = paddedLabel.substring(0, 17) + '...';
+          }
+          var termColor = 't-white';
+          if (color === 'green') termColor = 't-green';
+          else if (color === 'cyan') termColor = 't-cyan';
+          else if (color === 'orange' || color === 'yellow') termColor = 't-yellow';
+          else if (color === 'red') termColor = 't-red';
+          else if (color === 'magenta' || color === 'purple') termColor = 't-magenta';
+          else if (color === 'blue') termColor = 't-blue';
+          pr(c('  │ ', 't-dim') + c(paddedLabel, 't-white') + c(' ' + barStr + ' ', termColor) + c(val+'%', 't-white'));
         }
-        bar('Frontend / WebGL ', s1, 't-green');
-        bar('Backend / Web3   ', s2, 't-cyan');
-        bar('Hardware / IoT   ', s3, 't-orange');
+        skillsArr.forEach(function(skill) {
+          bar(skill.label, skill.value, skill.color);
+        });
         pr(c('  └─────────────────────────────────────', 't-dim'));
       },
       projects: function(){
